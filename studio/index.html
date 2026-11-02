@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>استوديو لافي — مواقع وتطبيقات عربية</title>
+<meta name="description" content="مواقع وتطبيقات عربية أولاً، جاهزة خلال أيام. من صانع جذر وكورتنا وFooties على App Store.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f4ee; --card: #ffffff; --ink: #1c1b19; --muted: #6b665d; --line: #e4ddd0;
+    --accent: #0e7c61; --accent-ink: #ffffff; --soft: #e7f2ee;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #141412; --card: #1d1c1a; --ink: #f2efe9; --muted: #a39d92; --line: #2e2c28;
+            --accent: #3fb592; --accent-ink: #0d1f19; --soft: #1b2c26; }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 17px/1.7 "IBM Plex Sans Arabic", "Inter", system-ui, sans-serif; }
+  [lang="en"] body, body.en { font-family: "Inter", "IBM Plex Sans Arabic", system-ui, sans-serif; }
+  a { color: inherit; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+
+  header { display: flex; align-items: center; justify-content: space-between; padding: 20px 0; }
+  .brand { font-weight: 700; font-size: 18px; }
+  .brand span { color: var(--accent); }
+  .lang { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px;
+          padding: 6px 14px; font: inherit; font-size: 14px; cursor: pointer; }
+
+  .hero { padding: 48px 0 56px; }
+  .eyebrow { display: inline-block; background: var(--soft); color: var(--accent); border-radius: 999px;
+             padding: 4px 12px; font-size: 14px; font-weight: 500; }
+  h1 { font-size: clamp(32px, 6vw, 54px); line-height: 1.2; margin: 16px 0 16px; letter-spacing: -0.01em; }
+  .lead { font-size: 19px; color: var(--muted); max-width: 640px; margin: 0 0 28px; }
+  .cta { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; border-radius: 12px;
+         padding: 13px 22px; font-weight: 700; font-size: 16px; }
+  .btn-primary { background: var(--accent); color: var(--accent-ink); }
+  .btn-ghost { border: 1px solid var(--line); background: var(--card); }
+
+  section { padding: 44px 0; border-top: 1px solid var(--line); }
+  h2 { font-size: 28px; line-height: 1.3; margin: 0 0 8px; }
+  .sub { color: var(--muted); margin: 0 0 28px; }
+
+  .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 24px; }
+  .card h3 { margin: 0 0 4px; font-size: 20px; }
+  .price { font-size: 30px; font-weight: 700; margin: 10px 0 2px; }
+  .price small { font-size: 15px; font-weight: 500; color: var(--muted); }
+  .time { color: var(--accent); font-weight: 500; font-size: 15px; }
+  .card ul { padding-inline-start: 20px; margin: 14px 0 0; color: var(--muted); }
+  .card li { margin: 4px 0; }
+  .featured { border: 2px solid var(--accent); }
+
+  .apps .card { display: flex; flex-direction: column; gap: 6px; }
+  .apps .tag { font-size: 13px; color: var(--muted); }
+  .apps a.link { color: var(--accent); font-weight: 500; text-decoration: none; margin-top: auto; }
+
+  .steps { counter-reset: s; }
+  .steps .card::before { counter-increment: s; content: counter(s);
+    display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 50%;
+    background: var(--soft); color: var(--accent); font-weight: 700; margin-bottom: 10px; }
+
+  details { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px 20px; margin-bottom: 10px; }
+  summary { cursor: pointer; font-weight: 500; }
+  details p { color: var(--muted); margin: 10px 0 0; }
+
+  .final { text-align: center; }
+  .final .cta { justify-content: center; }
+  footer { padding: 32px 0 48px; color: var(--muted); font-size: 14px; text-align: center; }
+
+  .en-only { display: none; }
+  body.en .ar-only { display: none; }
+  body.en .en-only { display: revert; }
+  body.en span.en-only, body.en a.en-only { display: inline; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><span class="ar-only">استوديو <span>لافي</span></span><span class="en-only">Lafy <span>Studio</span></span></div>
+    <button class="lang" id="lang" type="button" aria-label="Switch language">English</button>
+  </header>
+
+  <div class="hero">
+    <span class="eyebrow ar-only">مواقع وتطبيقات عربية أولاً</span>
+    <span class="eyebrow en-only">Arabic-first websites &amp; apps</span>
+    <h1 class="ar-only">موقع نشاطك جاهز خلال ٤٨ ساعة، بالعربي والإنجليزي.</h1>
+    <h1 class="en-only">Your business website, live in 48 hours, in Arabic and English.</h1>
+    <p class="lead ar-only">أصمّم وأبرمج مواقع وتطبيقات سريعة ونظيفة تعمل بشكل صحيح من اليمين لليسار — من نفس الشخص الذي بنى جذر وكورتنا وFooties على App Store.</p>
+    <p class="lead en-only">Fast, clean sites and apps that get right-to-left right — built by the same person who made Jadhr, Kortna and Footies on the App Store.</p>
+    <div class="cta">
+      <a class="btn btn-primary" href="#contact"><span class="ar-only">اطلب موقعك</span><span class="en-only">Get your site</span></a>
+      <a class="btn btn-ghost" href="demo-cafe/"><span class="ar-only">شاهد نموذجاً</span><span class="en-only">See a sample</span></a>
+    </div>
+  </div>
+
+  <section id="packages">
+    <h2 class="ar-only">الباقات</h2><h2 class="en-only">Packages</h2>
+    <p class="sub ar-only">سعر ثابت ومعروف مسبقاً. نصف المبلغ عند البدء، والباقي عند التسليم.</p>
+    <p class="sub en-only">Fixed price, agreed up front. Half to start, half on delivery.</p>
+    <div class="grid">
+      <div class="card">
+        <h3 class="ar-only">صفحة هبوط</h3><h3 class="en-only">Landing page</h3>
+        <div class="price">750 <small class="ar-only">ر.س</small><small class="en-only">SAR</small></div>
+        <div class="time ar-only">خلال ٤٨ ساعة</div><div class="time en-only">In 48 hours</div>
+        <ul class="ar-only"><li>صفحة واحدة بالعربي والإنجليزي</li><li>زر واتساب واتصال وموقعك على الخريطة</li><li>تعمل بسرعة على الجوال</li><li>تعديلان مجاناً</li></ul>
+        <ul class="en-only"><li>One page, Arabic and English</li><li>WhatsApp, call and map buttons</li><li>Fast on phones</li><li>Two rounds of edits</li></ul>
+      </div>
+      <div class="card featured">
+        <h3 class="ar-only">موقع نشاط تجاري</h3><h3 class="en-only">Business website</h3>
+        <div class="price">1,900 <small class="ar-only">ر.س</small><small class="en-only">SAR</small></div>
+        <div class="time ar-only">خلال ٥ أيام</div><div class="time en-only">In 5 days</div>
+        <ul class="ar-only"><li>حتى ٥ صفحات: الخدمات، القائمة، الأسعار، من نحن، تواصل</li><li>قائمة طعام أو خدمات برمز QR</li><li>ربط الدومين والاستضافة</li><li>شهر دعم مجاني</li></ul>
+        <ul class="en-only"><li>Up to 5 pages: services, menu, prices, about, contact</li><li>QR menu or service list</li><li>Domain and hosting set up</li><li>One month of free support</li></ul>
+      </div>
+      <div class="card">
+        <h3 class="ar-only">تطبيق جوال</h3><h3 class="en-only">Mobile app</h3>
+        <div class="price"><span class="ar-only">من</span><span class="en-only">From</span> 7,500 <small class="ar-only">ر.س</small><small class="en-only">SAR</small></div>
+        <div class="time ar-only">من ٣ أسابيع</div><div class="time en-only">From 3 weeks</div>
+        <ul class="ar-only"><li>تطبيق iPhone منشور على App Store</li><li>تصميم عربي أصيل، ليس ترجمة</li><li>مشتريات داخل التطبيق أو إعلانات عند الحاجة</li></ul>
+        <ul class="en-only"><li>iPhone app published on the App Store</li><li>Native Arabic design, not a translation</li><li>In-app purchases or ads when you need them</li></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="apps">
+    <h2 class="ar-only">أعمال منشورة الآن</h2><h2 class="en-only">Live work</h2>
+    <p class="sub ar-only">تطبيقات صممتها وبرمجتها ونشرتها بنفسي، ويمكنك تحميلها اليوم.</p>
+    <p class="sub en-only">Apps I designed, built and shipped myself. You can download them today.</p>
+    <div class="grid">
+      <div class="card">
+        <h3>جذر · Jadhr</h3>
+        <div class="tag ar-only">لغز يومي عربي · وصل للمركز الأول في فئة الكلمات بالسعودية</div>
+        <div class="tag en-only">Daily Arabic word puzzle · reached #1 in Saudi Arabia's Word category</div>
+        <a class="link" href="https://apps.apple.com/sa/app/jadhr/id6778617964" target="_blank" rel="noopener"><span class="ar-only">على App Store ←</span><span class="en-only">On the App Store →</span></a>
+      </div>
+      <div class="card">
+        <h3>كورتنا · Kortna</h3>
+        <div class="tag ar-only">ألعاب كرة قدم يومية بالعربي</div>
+        <div class="tag en-only">Daily football games, in Arabic</div>
+      </div>
+      <div class="card">
+        <h3>Footies</h3>
+        <div class="tag ar-only">١٤ لعبة كرة قدم يومية بالإنجليزي</div>
+        <div class="tag en-only">14 daily football games, in English</div>
+        <a class="link" href="https://apps.apple.com/us/app/footies/id6800394429" target="_blank" rel="noopener"><span class="ar-only">على App Store ←</span><span class="en-only">On the App Store →</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="ar-only">كيف نعمل</h2><h2 class="en-only">How it works</h2>
+    <div class="grid steps" style="margin-top:20px">
+      <div class="card"><b class="ar-only">رسالة واتساب</b><b class="en-only">One WhatsApp message</b>
+        <p class="ar-only" style="margin:6px 0 0;color:var(--muted)">أرسل اسم نشاطك وشعارك وصور منتجاتك أو خدماتك.</p>
+        <p class="en-only" style="margin:6px 0 0;color:var(--muted)">Send your business name, logo and photos.</p></div>
+      <div class="card"><b class="ar-only">مسودة خلال يوم</b><b class="en-only">A draft in a day</b>
+        <p class="ar-only" style="margin:6px 0 0;color:var(--muted)">ترى موقعك على رابط حقيقي قبل أن تدفع الباقي.</p>
+        <p class="en-only" style="margin:6px 0 0;color:var(--muted)">See your site on a real link before you pay the rest.</p></div>
+      <div class="card"><b class="ar-only">إطلاق</b><b class="en-only">Launch</b>
+        <p class="ar-only" style="margin:6px 0 0;color:var(--muted)">نربط الدومين وننشر الموقع، ويبقى ملكك بالكامل.</p>
+        <p class="en-only" style="margin:6px 0 0;color:var(--muted)">We connect your domain and go live. It's fully yours.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="ar-only">أسئلة شائعة</h2><h2 class="en-only">Questions</h2>
+    <details><summary class="ar-only">هل الدومين والاستضافة ضمن السعر؟</summary><summary class="en-only">Are domain and hosting included?</summary>
+      <p class="ar-only">الإعداد ضمن السعر. الاستضافة مجانية لمعظم المواقع؛ الدومين تشتريه باسمك (حوالي ٥٠ ر.س في السنة) فيبقى ملكك.</p>
+      <p class="en-only">Setup is included. Hosting is free for most sites; you buy the domain in your own name (about 50 SAR a year) so it stays yours.</p></details>
+    <details><summary class="ar-only">ماذا لو لم يعجبني التصميم؟</summary><summary class="en-only">What if I don't like the design?</summary>
+      <p class="ar-only">ترى المسودة قبل الدفعة الثانية. إذا لم تناسبك ولم نتفق على تعديلها، لا تدفع الباقي.</p>
+      <p class="en-only">You see the draft before the second payment. If it doesn't work for you and we can't fix it, you don't pay the rest.</p></details>
+    <details><summary class="ar-only">هل أستطيع تعديل المحتوى لاحقاً؟</summary><summary class="en-only">Can I change the content later?</summary>
+      <p class="ar-only">نعم. التعديلات الصغيرة خلال شهر الدعم مجانية، وبعدها بسعر ثابت.</p>
+      <p class="en-only">Yes. Small changes are free during the support month, then at a fixed price.</p></details>
+  </section>
+
+  <section id="contact" class="final">
+    <h2 class="ar-only">جاهز تبدأ؟</h2><h2 class="en-only">Ready to start?</h2>
+    <p class="sub ar-only">أرد خلال ساعات، لا أيام.</p><p class="sub en-only">I reply within hours, not days.</p>
+    <div class="cta">
+      <a class="btn btn-primary" href="https://wa.me/966508038999"><span class="ar-only">راسلني على واتساب</span><span class="en-only">Message me on WhatsApp</span></a>
+      <a class="btn btn-ghost" href="mailto:lafyalmutlaq@gmail.com"><span class="ar-only">البريد الإلكتروني</span><span class="en-only">Email</span></a>
+    </div>
+  </section>
+
+  <footer>© 2026 <span class="ar-only">استوديو لافي</span><span class="en-only">Lafy Studio</span></footer>
+</div>
+<script>
+  const btn = document.getElementById('lang');
+  function setLang(en) {
+    document.body.classList.toggle('en', en);
+    document.documentElement.lang = en ? 'en' : 'ar';
+    document.documentElement.dir = en ? 'ltr' : 'rtl';
+    btn.textContent = en ? 'العربية' : 'English';
+    try { localStorage.setItem('lang', en ? 'en' : 'ar'); } catch (e) {}
+  }
+  btn.addEventListener('click', () => setLang(!document.body.classList.contains('en')));
+  let saved = null; try { saved = localStorage.getItem('lang'); } catch (e) {}
+  if (saved === 'en' || new URLSearchParams(location.search).has('en')) setLang(true);
+</script>
+</body>
+</html>

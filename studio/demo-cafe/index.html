@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مقهى سَنا — نموذج</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@500;700&family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #f4ede3; --card: #fffaf3; --ink: #2b211a; --muted: #7a6a5c; --line: #e6d9c7;
+          --accent: #b4572e; --accent-ink: #fff; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #18130f; --card: #221b16; --ink: #f3e9dc; --muted: #b3a291; --line: #33291f;
+            --accent: #e0814f; --accent-ink: #1d120c; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.7 "IBM Plex Sans Arabic", system-ui, sans-serif; }
+  .ribbon { background: var(--ink); color: var(--bg); text-align: center; font-size: 13px; padding: 6px 16px; }
+  .ribbon a { color: inherit; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 20px; }
+  .hero { padding: 56px 0 40px; text-align: center; }
+  .logo { font-family: "Reem Kufi", sans-serif; font-size: clamp(44px, 10vw, 76px); line-height: 1.1; margin: 0; color: var(--accent); }
+  .tagline { color: var(--muted); font-size: 19px; margin: 10px 0 24px; }
+  .actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .btn { text-decoration: none; border-radius: 999px; padding: 12px 22px; font-weight: 700; font-size: 16px; }
+  .btn-primary { background: var(--accent); color: var(--accent-ink); }
+  .btn-ghost { border: 1px solid var(--line); background: var(--card); color: var(--ink); }
+  .meta { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; color: var(--muted); font-size: 15px; margin-top: 22px; }
+  h2 { font-family: "Reem Kufi", sans-serif; font-size: 30px; margin: 0 0 18px; }
+  section { padding: 36px 0; border-top: 1px solid var(--line); }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+  .tab { border: 1px solid var(--line); background: var(--card); color: var(--ink); border-radius: 999px; padding: 7px 16px; font: inherit; font-size: 15px; cursor: pointer; }
+  .tab[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .menu { display: grid; gap: 10px; }
+  .item { display: flex; justify-content: space-between; gap: 16px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 18px; }
+  .item b { display: block; }
+  .item span { color: var(--muted); font-size: 14px; }
+  .item .p { font-weight: 700; white-space: nowrap; }
+  .hours { display: grid; grid-template-columns: 1fr auto; gap: 6px 20px; max-width: 360px; }
+  .hours div:nth-child(odd) { color: var(--muted); }
+  footer { padding: 30px 0 46px; text-align: center; color: var(--muted); font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="ribbon">نموذج تجريبي لنشاط وهمي — صُمّم خلال يوم واحد بواسطة <a href="../">استوديو لافي</a></div>
+<div class="wrap">
+  <div class="hero">
+    <h1 class="logo">مقهى سَنا</h1>
+    <p class="tagline">قهوة مختصة وحلى بيتية، في قلب الحي.</p>
+    <div class="actions">
+      <a class="btn btn-primary" href="#menu">القائمة</a>
+      <a class="btn btn-ghost" href="#visit">زورونا</a>
+    </div>
+    <div class="meta"><span>☕ قهوة مختصة</span><span>🍰 حلى يومية</span><span>🚗 طلبات سيارة</span></div>
+  </div>
+
+  <section id="menu">
+    <h2>القائمة</h2>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" data-cat="hot">مشروبات حارة</button>
+      <button class="tab" role="tab" aria-selected="false" data-cat="cold">مشروبات باردة</button>
+      <button class="tab" role="tab" aria-selected="false" data-cat="sweet">حلى</button>
+    </div>
+    <div class="menu" id="items"></div>
+  </section>
+
+  <section id="visit">
+    <h2>زورونا</h2>
+    <div class="hours">
+      <div>السبت – الخميس</div><div>٦ص – ١٢م</div>
+      <div>الجمعة</div><div>٤م – ١م</div>
+    </div>
+    <div class="actions" style="justify-content:flex-start;margin-top:20px">
+      <a class="btn btn-primary" href="#visit">واتساب للطلب</a>
+      <a class="btn btn-ghost" href="#visit">الموقع على الخريطة</a>
+    </div>
+  </section>
+
+  <footer>© مقهى سَنا (نموذج) · الأسعار تشمل الضريبة</footer>
+</div>
+<script>
+  const MENU = {
+    hot: [['قهوة سعودية', 'دلّة لشخصين مع تمر', 18], ['V60', 'محصول اليوم، يسأل الباريستا', 22], ['لاتيه', 'إسبريسو وحليب مبخّر', 17], ['شاي كرك', 'بالهيل والزعفران', 9]],
+    cold: [['آيس لاتيه', 'مع شراب الفانيلا حسب الطلب', 19], ['كولد برو', 'منقوع ١٨ ساعة', 21], ['ليمون بالنعناع', 'طازج يومياً', 14]],
+    sweet: [['كيكة التمر', 'بصوص الكراميل', 16], ['سان سباستيان', 'تشيز كيك محروق', 24], ['لقيمات', 'بدبس التمر والسمسم', 15]],
+  };
+  const box = document.getElementById('items');
+  function show(cat) {
+    box.innerHTML = MENU[cat].map(([n, d, p]) =>
+      `<div class="item"><div><b>${n}</b><span>${d}</span></div><div class="p">${p.toLocaleString('ar-SA')} ر.س</div></div>`).join('');
+    document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', t.dataset.cat === cat));
+  }
+  document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => show(t.dataset.cat)));
+  show('hot');
+</script>
+</body>
+</html>

@@ -136,3 +136,77 @@ export function rivalDecides(s, value) {
   if (s.turn !== 1) return 'wait';
   return s.bid + 1 <= Math.min(value, s.budgets[1]) ? 'raise' : 'pass';
 }
+
+// ── The dive ─────────────────────────────────────────────────────────────
+// Ten metres for every day: the page is a depth gauge as well as a calendar. stops: [{ y, m }] by page y.
+export function depthAt(y, stops) {
+  if (!stops.length) return 0;
+  if (y <= stops[0].y) return stops[0].m;
+  for (let i = 1; i < stops.length; i++) {
+    if (y <= stops[i].y) {
+      const a = stops[i - 1], b = stops[i];
+      return a.m + ((b.m - a.m) * (y - a.y)) / Math.max(1, b.y - a.y);
+    }
+  }
+  return stops[stops.length - 1].m;
+}
+
+// NOAA's light zones. 0 surface, 1 sunlight, 2 twilight, 3 midnight, 4 abyss, 5 trenches.
+export const zoneAt = (m) => (m < 1 ? 0 : m < 200 ? 1 : m < 1000 ? 2 : m < 4000 ? 3 : m < 6000 ? 4 : 5);
+
+// Real minus sign, grouped thousands, digits in the page's language.
+export function formatDepth(m, ar) {
+  const n = String(Math.round(m)).replace(/\B(?=(\d{3})+$)/g, ',');
+  return m < 1 ? (ar ? '٠ م' : '0 m') : ar ? `−${toArabicDigits(n).replace(/,/g, '٬')} م` : `−${n} m`;
+}
+
+// ── The shoal ────────────────────────────────────────────────────────────
+// x, y, vx, vy per fish, flat, so the array can go straight to the GPU.
+export function makeShoal(n, cx, cy, spread, R = Math.random) {
+  const s = new Float32Array(n * 4);
+  for (let i = 0; i < n; i++) {
+    const a = R() * 6.283, d = R() * spread;
+    s.set([cx + Math.cos(a) * d, cy + Math.sin(a) * d * 0.5, Math.cos(a) * 90, Math.sin(a) * 50], i * 4);
+  }
+  return s;
+}
+
+// Each fish steers by a few fixed neighbours in the list instead of searching space: cheap, and it is what
+// makes a shoal stream in ribbons rather than swarm like gnats. scare: { x, y } or null, usually the hand.
+export function stepShoal(s, dt, tx, ty, scare, maxSpeed = 250) {
+  const n = s.length / 4;
+  const h = Math.min(dt, 0.05);
+  for (let i = 0; i < n; i++) {
+    const o = i * 4;
+    const x = s[o], y = s[o + 1], vx = s[o + 2], vy = s[o + 3];
+    let ax = 0, ay = 0, cx = 0, cy = 0, mx = 0, my = 0;
+    for (let k = 1; k <= 5; k++) {
+      const j = ((i + k * k) % n) * 4;
+      const dx = s[j] - x, dy = s[j + 1] - y, d2 = dx * dx + dy * dy + 1;
+      if (d2 < 700) { ax -= (dx / d2) * 2600; ay -= (dy / d2) * 2600; }
+      cx += dx; cy += dy; mx += s[j + 2]; my += s[j + 3];
+    }
+    ax += (cx / 5) * 0.55 + (mx / 5 - vx) * 1.3 + (tx - x) * 0.34;
+    ay += (cy / 5) * 0.55 + (my / 5 - vy) * 1.3 + (ty - y) * 0.42;
+    if (scare) {
+      const dx = x - scare.x, dy = y - scare.y, d = Math.hypot(dx, dy) + 1;
+      if (d < 170) { const f = ((170 - d) / d) * 62; ax += dx * f; ay += dy * f; }
+    }
+    let nvx = vx + ax * h, nvy = vy + ay * h;
+    const sp = Math.hypot(nvx, nvy) + 0.001;
+    const k = sp > maxSpeed ? maxSpeed / sp : sp < 70 ? 70 / sp : 1;
+    nvx *= k; nvy *= k;
+    s[o] = x + nvx * h; s[o + 1] = y + nvy * h; s[o + 2] = nvx; s[o + 3] = nvy;
+  }
+  return s;
+}
+
+// ── The globe ────────────────────────────────────────────────────────────
+// Must match the shader: the view looks down at 12°N 62°E. Returns page coordinates.
+export function projectEarth(lonDeg, latDeg, cx, cy, R) {
+  const rad = Math.PI / 180;
+  const lat = latDeg * rad, dl = (lonDeg - 62) * rad;
+  const ca = Math.cos(12 * rad), sa = Math.sin(12 * rad);
+  const wx = Math.cos(lat) * Math.sin(dl), wy = Math.sin(lat), wz = Math.cos(lat) * Math.cos(dl);
+  return { x: cx + R * wx, y: cy - R * (wy * ca - wz * sa), facing: wy * sa + wz * ca > 0 };
+}

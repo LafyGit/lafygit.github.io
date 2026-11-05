@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import {
   toArabicDigits, arabicDaysAgo, daysBetween, tapLetter, hexCells, cascade, comboPoints,
   isValidSet, rowSegments, auctionStart, raise, pass, canRaise, rivalDecides,
+  depthAt, zoneAt, formatDepth, makeShoal, stepShoal, projectEarth,
 } from '../js/logic.js';
 
 test('the 142-day claim on the page matches the App Store dates', () => {
@@ -97,4 +98,48 @@ test('the rival respects its value and budget', () => {
   assert.equal(rivalDecides(s, 4), 'pass');
   assert.equal(rivalDecides({ ...s, budgets: [20, 4] }, 9), 'pass');
   assert.equal(rivalDecides({ ...s, turn: 0 }, 9), 'wait');
+});
+
+test('the depth gauge interpolates between stops and holds at the ends', () => {
+  const stops = [{ y: 100, m: 0 }, { y: 200, m: 50 }, { y: 400, m: 1470 }];
+  assert.equal(depthAt(0, stops), 0);
+  assert.equal(depthAt(150, stops), 25);
+  assert.equal(depthAt(200, stops), 50);
+  assert.equal(depthAt(9999, stops), 1470);
+  assert.equal(depthAt(5, []), 0);
+});
+
+test('zones follow the NOAA boundaries', () => {
+  assert.deepEqual([0, 50, 200, 999, 1000, 3999, 4000, 6000, 10935].map(zoneAt), [0, 1, 2, 2, 3, 3, 4, 5, 5]);
+});
+
+test('depth reads properly in both languages', () => {
+  assert.equal(formatDepth(1470, false), '−1,470 m');
+  assert.equal(formatDepth(1470, true), '−١٬٤٧٠ م');
+  assert.equal(formatDepth(0, false), '0 m');
+});
+
+test('the shoal stays together, stays finite and runs from the hand', () => {
+  let a = 7;
+  const R = () => (a = (a * 16807) % 2147483647) / 2147483647;
+  const s = makeShoal(200, 500, 300, 160, R);
+  for (let i = 0; i < 900; i++) stepShoal(s, 1 / 60, 500, 300, null);
+  const mean = (arr, off) => { let t = 0; for (let i = off; i < arr.length; i += 4) t += arr[i]; return t / (arr.length / 4); };
+  assert.ok(s.every(Number.isFinite), 'no NaN after 15 seconds');
+  assert.ok(Math.hypot(mean(s, 0) - 500, mean(s, 1) - 300) < 240, 'still around the target');
+  const before = Math.hypot(mean(s, 0) - 500, mean(s, 1) - 300);
+  const scare = { x: mean(s, 0), y: mean(s, 1) };
+  for (let i = 0; i < 30; i++) stepShoal(s, 1 / 60, 500, 300, scare);
+  let near = 0;
+  for (let i = 0; i < s.length; i += 4) if (Math.hypot(s[i] - scare.x, s[i + 1] - scare.y) < 30) near++;
+  assert.ok(near < 12, `the school opens around the hand (${near} left, drift was ${before.toFixed(0)})`);
+});
+
+test('the globe projection matches the view: its centre looks at 12N 62E', () => {
+  const c = projectEarth(62, 12, 400, 300, 100);
+  assert.ok(Math.abs(c.x - 400) < 1e-6 && Math.abs(c.y - 300) < 1e-6);
+  const riyadh = projectEarth(46.7, 24.7, 400, 300, 100);
+  assert.ok(riyadh.x < 400 && riyadh.y < 300, 'Riyadh is up and to the west of the centre');
+  assert.ok(riyadh.facing);
+  assert.ok(!projectEarth(-120, 40, 400, 300, 100).facing, 'California is on the far side');
 });

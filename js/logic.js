@@ -2,14 +2,6 @@
 
 export const toArabicDigits = (v) => String(v).replace(/\d/g, (d) => '٠١٢٣٤٥٦٧٨٩'[d]);
 
-// Arabic counts: the noun changes with the number.
-export function arabicDaysAgo(n) {
-  if (n <= 0) return 'اليوم';
-  if (n === 1) return 'قبل يوم';
-  if (n === 2) return 'قبل يومين';
-  return `قبل ${toArabicDigits(n)} ${n <= 10 ? 'أيام' : 'يومًا'}`;
-}
-
 export function daysBetween(a, b) {
   return Math.round((Date.parse(b) - Date.parse(a)) / 864e5);
 }

@@ -2,7 +2,7 @@
 import { createWorld, buildRoots } from './world.js';
 import { initAuction, initTiles, initHex, initRoots, initScanner, initCrumbs } from './play.js';
 import { createSound } from './sound.js';
-import { toArabicDigits, arabicDaysAgo, daysBetween, depthAt, zoneAt, formatDepth, makeShoal, stepShoal } from './logic.js';
+import { toArabicDigits, daysBetween, depthAt, zoneAt, formatDepth, makeShoal, stepShoal } from './logic.js';
 import { buildWhale, buildJelly, buildManta } from './creatures.js';
 import { paintLand, riyadh } from './earth.js';
 
@@ -17,6 +17,8 @@ const rgb = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 25
 const mixColor = (a, b, t) => a.map((v, i) => lerp(v, b[i], t));
 
 /* ── language ─────────────────────────────────────────────── */
+// The name is written in the language of the page.
+const nameFace = () => (root.lang === 'ar' ? { text: 'لافي', font: 'Rakkas', dir: 'rtl' } : { text: 'Lafy', font: 'Gloock', dir: 'ltr' });
 const langHooks = [];
 function applyLang() {
   const ar = root.lang === 'ar';
@@ -33,6 +35,7 @@ document.getElementById('lang').addEventListener('click', () => {
   try { localStorage.setItem('lang', next); } catch {}
   applyLang();
   queueLayout();
+  document.fonts.load(`400 200px ${nameFace().font}`, nameFace().text).then(queueLayout, () => {});
 });
 
 /* ── worlds and depths ────────────────────────────────────── */
@@ -73,7 +76,7 @@ const ZONES = [
 const sections = [...document.querySelectorAll('main > section')];
 const worlds = sections.filter((s) => s.dataset.world).map((el) => ({
   el, id: el.dataset.world, cfg: WORLDS[el.dataset.world], stage: document.querySelector(`[data-stage="${el.dataset.world}"]`),
-  open: el.querySelector('.open'), top: 0, bottom: 0, openH: 0,
+  open: el.querySelector('.open'), top: 0, bottom: 0, openH: 0, beats: [], caps: [...el.querySelectorAll('.cap')], shown: -2,
 }));
 
 /* ── the side gauge ───────────────────────────────────────── */
@@ -332,7 +335,7 @@ let sunX = 0, planetAt = [0, 0, 1], chartKey = '', focal = 1000;
 let heroBottom = 800, surfaceY = 0, waterY = 1e9, pageH = 1, vh = innerHeight, drainX = 0, drainY = 0;
 let diveStart = 400, diveEnd = 900, nameBase = 0;
 let earthAt = [0, 0, 0], pinAt = { x: 0, y: 0 }, signY = 0, orbitY = 1e9;
-let gaugeStops = [];
+let gaugeStops = [], zoneStops = [0];
 let introStart = performance.now();
 let front = 0;
 let namePoints = 0;
@@ -343,7 +346,8 @@ function sampleName() {
   const style = getComputedStyle(nameEl);
   const fs = parseFloat(style.fontSize);
   // Re-sampling swaps every grain, so only do it when the word really changed.
-  const key = [r.width, r.height, fs, document.fonts.check('400 20px Rakkas', 'لافي')].join();
+  const face = nameFace();
+  const key = [face.text, r.width, r.height, fs, document.fonts.check(`400 20px ${face.font}`, face.text)].join();
   box.y = r.top + scrollY - Math.ceil(fs * 0.45);
   box.x = r.left;
   // Find the DOM baseline so the grains land exactly on the real glyphs.
@@ -361,12 +365,12 @@ function sampleName() {
   const c = document.createElement('canvas');
   c.width = cw; c.height = ch;
   const g = c.getContext('2d', { willReadFrequently: true });
-  g.font = `400 ${fs}px Rakkas`;
-  g.direction = 'rtl';
+  g.font = `400 ${fs}px ${face.font}`;
+  g.direction = face.dir;
   g.textAlign = 'center';
   g.textBaseline = 'alphabetic';
   g.fillStyle = '#fff';
-  g.fillText('لافي', cw / 2, baseline - r.top + pad);
+  g.fillText(face.text, cw / 2, baseline - r.top + pad);
   const img = g.getImageData(0, 0, cw, ch).data;
   const pts = [];
   const target = mobile ? 12000 : 26000;
@@ -400,11 +404,12 @@ function paintMask() {
   g.fillRect(0, top, W, H);
   g.globalCompositeOperation = 'lighter';
   g.fillStyle = '#0f0';
-  g.font = `400 ${parseFloat(getComputedStyle(nameEl).fontSize)}px Rakkas`;
-  g.direction = 'rtl';
+  const face = nameFace();
+  g.font = `400 ${parseFloat(getComputedStyle(nameEl).fontSize)}px ${face.font}`;
+  g.direction = face.dir;
   g.textAlign = 'center';
   g.textBaseline = 'alphabetic';
-  g.fillText('لافي', box.x + box.w / 2, nameBase);
+  g.fillText(face.text, box.x + box.w / 2, nameBase);
   if (palmSvg._trunk.getAttribute('d')) {
     const pb = palmSvg.getBoundingClientRect();
     const u = pb.width / 300;
@@ -427,34 +432,44 @@ function paintMask() {
   maskPalm = palmGrowth;
 }
 
+// The glyphs sunk in the water belong to whichever app you are heading for. One 3×2 atlas, one tile per stretch of sea.
+const GLYPHS = [
+  { face: '400 %px Lalezar', set: 'ك و ر ت ن ا هدف صافرة حكم مجلس كورة'.split(' ') },
+  { face: '900 %px Archivo', set: '$ ? $20 SOLD $5 PASS RAISE $1'.split(' ') },
+  { face: '800 %px "Baloo 2"', set: '1 2 3 4 5 6 7 8 9 10 11 12 13'.split(' ') },
+  { face: 'italic 900 %px "Barlow Condensed"', set: 'GOL VAR FT 11 XI OFF 90+ 7'.split(' ') },
+  { face: '700 %px Cairo', set: 'ا ب ت ث ج ح خ د ذ ر ز س ش ص ض ط ظ ع غ ف ق ك ل م ن ه و ي'.split(' ') },
+  { face: '500 %px "IBM Plex Mono"', set: '{ } </> ; => if fn 404 ( )'.split(' ') },
+];
 function fossils() {
-  const size = 2048;
+  const T = 682, cells = 5, step = T / cells;
   const c = document.createElement('canvas');
-  c.width = c.height = size;
+  c.width = T * 3;
+  c.height = T * 2;
   const g = c.getContext('2d');
   g.fillStyle = '#000';
-  g.fillRect(0, 0, size, size);
+  g.fillRect(0, 0, c.width, c.height);
   g.fillStyle = '#fff';
   g.textAlign = 'center';
   g.textBaseline = 'middle';
-  const letters = 'ا ب ت ث ج ح خ د ذ ر ز س ش ص ض ط ظ ع غ ف ق ك ل م ن ه و ي'.split(' ');
   const R = (() => { let a = 11; return () => (a = (a * 16807) % 2147483647) / 2147483647; })();
-  const fonts = ['Rakkas', 'Aref Ruqaa', 'Cairo', 'Lalezar'];
-  const cells = 7;
-  const step = size / cells;
-  for (let y = 0; y < cells; y++) {
-    for (let x = 0; x < cells; x++) {
-      const fs = 92 + R() * 170;
-      const cxp = (x + 0.5) * step + (R() - 0.5) * step * 0.5;
-      const cyp = (y + 0.5) * step + (R() - 0.5) * step * 0.5;
-      g.save();
-      g.translate(cxp, cyp);
-      g.rotate((R() - 0.5) * 1.1);
-      g.font = `400 ${fs}px ${fonts[Math.floor(R() * fonts.length)]}`;
-      g.fillText(letters[Math.floor(R() * letters.length)], 0, 0);
-      g.restore();
+  GLYPHS.forEach(({ face, set }, z) => {
+    const ox = (z % 3) * T, oy = Math.floor(z / 3) * T;
+    for (let y = 0; y < cells; y++) {
+      for (let x = 0; x < cells; x++) {
+        const word = set[Math.floor(R() * set.length)];
+        let fs = 34 + R() * 52;
+        g.font = face.replace('%', fs);
+        fs *= Math.min(1, (step * 0.92) / g.measureText(word).width); // long words stay inside their cell, so none is cut at a tile's edge
+        g.font = face.replace('%', fs);
+        g.save();
+        g.translate(ox + (x + 0.5 + (R() - 0.5) * 0.2) * step, oy + (y + 0.5 + (R() - 0.5) * 0.2) * step);
+        g.rotate((R() - 0.5) * 0.9);
+        g.fillText(word, 0, 0);
+        g.restore();
+      }
     }
-  }
+  });
   world.setFossils(c);
 }
 
@@ -477,7 +492,7 @@ const CONSTELLATIONS = [
   { at: [.685, .2], w: .01, lines: [], stars: [[0, 0, 1.4, 'الدبران', 'Aldebaran']] },
   { at: [.3, .42], w: .01, phone: [.12, .46, .01], lines: [], stars: [[0, 0, 1.2, 'فم الحوت', 'Fomalhaut']] },
   // Low over the water, the way it sits from Arabia.
-  { at: [.655, .68], w: .01, phone: [.1, .84, .01], lines: [], stars: [[0, 0, 1.6, 'سهيل', 'Canopus']] },
+  { at: [.735, .62], w: .01, phone: [.1, .84, .01], lines: [], stars: [[0, 0, 1.6, 'سهيل', 'Canopus']] },
 ];
 
 function drawChart(W, H) {
@@ -628,6 +643,7 @@ function layout() {
     w.top = w.el.offsetTop;
     w.bottom = w.top + w.el.offsetHeight;
     w.openH = w.open ? w.open.offsetHeight : 0;
+    w.beats = [...w.el.querySelectorAll('.beat')].map((b) => b.offsetTop);
   });
   surfaceY = horizonEl.getBoundingClientRect().top + scrollY;
   heroBottom = document.getElementById('surface').offsetHeight;
@@ -645,6 +661,8 @@ function layout() {
     { y: secTop('crew'), m: 8500 },
     { y: secTop('water'), m: 10935 },
   ];
+  // A new set of glyphs starts as you leave each app, so they foreshadow the next one.
+  zoneStops = [0, ...['bidwars', 'lumiku', 'footies', 'jadhr'].map((d) => document.querySelector(`.gap[data-to="${d}"]`).offsetTop), document.getElementById('seeds').previousElementSibling.offsetTop];
   const gb = globeEl.getBoundingClientRect();
   orbitY = gb.top + scrollY - vh * 0.4;
   if (!world) return;
@@ -696,9 +714,9 @@ function layout() {
   const gapOf = (sel) => { const g = document.querySelector(sel); return g ? g.offsetTop + g.offsetHeight / 2 : 0; };
   places.far = gapOf('.gap-first');
   places.shoal = gapOf('.gap-first') + vh * 0.44;
-  places.manta = gapOf('.gap[data-days="3"]');
+  places.manta = gapOf('.gap[data-to="bidwars"]');
   const s = Math.min(width * 0.13, 128);
-  const jy = [gapOf('.gap[data-days="15"]'), gapOf('.gap[data-days="35"]')];
+  const jy = [gapOf('.gap[data-to="lumiku"]'), gapOf('.gap[data-to="footies"]')];
   places.jelly = [
     { x: .14, y: jy[0] - vh * .2, s: s * 1.2 }, { x: .84, y: jy[0] + vh * .12, s: s * .8 }, { x: .62, y: jy[0] - vh * .42, s: s * .5 },
     { x: .85, y: jy[1] - vh * .24, s: s * 1.1 }, { x: .16, y: jy[1] + vh * .16, s: s * .75 }, { x: .4, y: jy[1] + vh * .42, s: s * .5 },
@@ -767,23 +785,6 @@ function getRot(el) {
   return rotCache.get(el);
 }
 
-/* ── time dials between the depths ────────────────────────── */
-const dials = [...document.querySelectorAll('.deeper')].map((el) => ({ el, on: false, nums: [...el.querySelectorAll('[data-count]')], n: +el.querySelector('[data-count]').dataset.count }));
-{
-  const io = new IntersectionObserver((es) => es.forEach((e) => { const d = dials.find((x) => x.el === e.target); if (d) d.on = e.isIntersecting; }));
-  dials.forEach((d) => io.observe(d.el));
-}
-function drawDials() {
-  for (const d of dials) {
-    if (!d.on) continue;
-    const r = d.el.getBoundingClientRect();
-    const v = Math.round(d.n * smooth(clamp((vh * 0.96 - r.top) / (vh * 0.42))));
-    if (v === d.last) continue;
-    d.last = v;
-    d.nums.forEach((i) => { i.textContent = i.closest('[data-l="ar"]') ? toArabicDigits(v) : v; });
-  }
-}
-
 /* ── stages ───────────────────────────────────────────────── */
 const bwTitle = document.querySelector('.bw-title');
 const bwCards = document.querySelector('.bw-cards');
@@ -792,19 +793,34 @@ const fPow1 = document.querySelector('.f-pow1');
 const fPow2 = document.querySelector('.f-pow2');
 const jTitle = document.querySelector('.j-title');
 const rackTitle = document.getElementById('rackTitle');
-const kNote = document.querySelector('.chant-note');
+const purses = [...document.querySelectorAll('#purses b')];
+const pursesBox = document.getElementById('purses');
+const jFamily = document.getElementById('jFamily');
+// The money runs out exactly as the story says it does.
+const PURSES = [[20, 20], [17, 15], [1, 9], [0, 6]];
+const POWS = ['STATHAM?!', 'VAR CHECK!', 'GOLAZO!'];
+// Where each Lumiku tile starts, flung across the table: x and y in screen percent, then rotation.
+const SCATTER = [[-22, -26, -24], [18, 22, 16], [-14, 20, -12], [24, -22, 20], [-24, 8, 30], [12, -14, -18]];
 
 function drawStage(w, sy, t, vel) {
   const local = sy - w.top;                         // 0 when the section's top reaches the viewport top
   const entry = clamp((sy + vh - w.top) / vh);      // 0..1 as the section rises into view
   const after = Math.max(0, local - (w.openH - vh)); // pixels scrolled past the opening
   const pointerX = pointer.sx / innerWidth - 0.5;
+  // Which subtitle is on screen. The stage plays along with it.
+  const beat = w.beats.reduce((n, top, i) => (sy + vh * 0.75 >= w.top + top ? i : n), -1);
+  // One line at a time, like subtitles: the rest wait out of sight even while they scroll past.
+  const showing = after > vh * 0.2 ? -1 : beat;
+  if (showing !== w.shown) {
+    w.shown = showing;
+    w.caps.forEach((c, i) => c.classList.toggle('on', i === showing));
+  }
 
   if (w.id === 'k') {
-    const P = clamp(local / (w.openH - vh * 0.95));
-    drawChant(P, vel, t);
+    // The word sits still until the third subtitle says the room starts singing.
+    const from = w.top + w.beats[2] - vh * 0.75, to = w.top + w.beats[3] - vh * 0.75;
+    drawChant(clamp((sy - from) / (to - from)) * 0.76 + clamp((sy - to) / (vh * 0.5)) * 0.24, vel, t);
     chantEl.style.top = `calc(46% - ${after.toFixed(0)}px)`;
-    kNote.style.transform = `translate3d(0, ${(-after * 1.2).toFixed(0)}px, 0)`;
     w.stage.classList.toggle('past', after > 40);
   } else if (w.id === 'b') {
     const mx = clamp(0.5 + pointerX * 0.9 + Math.sin(t * 0.5) * 0.04, 0.08, 0.92);
@@ -812,22 +828,43 @@ function drawStage(w, sy, t, vel) {
     bwTitle.style.transform = `translate3d(0, ${(-after).toFixed(0)}px, 0) scale(${lerp(1.25, 1, smooth(entry)).toFixed(3)})`;
     const spread = smooth(entry);
     bwCards.style.transform = `translate3d(${(pointerX * -36).toFixed(1)}px, ${(lerp(120, -18, spread) - after * 1.4).toFixed(0)}px, 0) rotate(${lerp(-10, 0, spread).toFixed(2)}deg) scale(${lerp(.8, 1, spread).toFixed(3)})`;
+    pursesBox.style.transform = `translate3d(0, ${(-after).toFixed(0)}px, 0)`;
+    const money = PURSES[Math.max(beat, 0)];
+    purses.forEach((el, i) => {
+      const txt = `$${money[i]}`;
+      if (el.textContent === txt) return;
+      el.textContent = txt;
+      el.classList.add('hit');
+      setTimeout(() => el.classList.remove('hit'), 240);
+    });
   } else if (w.id === 'l') {
     rackTitle.style.transform = `translate3d(-50%, calc(-50% + ${(-after).toFixed(0)}px), 0)`;
     const open = clamp((entry - 0.4) / 0.6);
+    // The tiles start flung across the table and get worked into the word as the story goes.
+    const worked = clamp((sy + vh * 0.75 - w.top - w.beats[0]) / (w.beats[w.beats.length - 1] - w.beats[0] + vh * 0.5));
     rackTiles.forEach((el, i) => {
       const p = clamp(open * 1.9 - i * 0.14);
       const e = 1 - Math.pow(1 - p, 3);
-      el.style.transform = `rotateX(${((1 - e) * -96).toFixed(1)}deg) translateY(${(Math.sin(t * 1.4 + i * 0.8) * 3).toFixed(1)}px)`;
+      const k = 1 - smooth(clamp(worked * 1.7 - i * 0.13));
+      const [dx, dy, r] = SCATTER[i];
+      el.style.transform = `translate(${(k * dx).toFixed(2)}vw, ${(k * dy).toFixed(2)}vh) rotate(${(k * r).toFixed(1)}deg) rotateX(${((1 - e) * -96).toFixed(1)}deg) translateY(${(Math.sin(t * 1.4 + i * 0.8) * 3).toFixed(1)}px)`;
     });
   } else if (w.id === 'f') {
     const e = smooth(entry);
     fTitle.style.transform = `translate3d(0, calc(-50% + ${(-after).toFixed(0)}px), 0) rotate(${lerp(-7, -2.4, e).toFixed(2)}deg) scale(${lerp(.72, 1, e).toFixed(3)})`;
     const bob = Math.sin(t * 1.5) * 7;
     fPow1.style.transform = `translate3d(${(pointerX * 34).toFixed(1)}px, ${(bob - after * 1.3).toFixed(1)}px, 0) scale(${e.toFixed(3)})`;
-    fPow2.style.transform = `translate3d(${(pointerX * -34).toFixed(1)}px, ${(-bob - after * 1.5).toFixed(1)}px, 0) scale(${e.toFixed(3)})`;
+    const pow = POWS[clamp(beat, 0, 2)];
+    if (fPow1.textContent !== pow) fPow1.textContent = pow;
+    // Full time only comes at the end of the story.
+    fPow2.style.transform = `translate3d(${(pointerX * -34).toFixed(1)}px, ${(-bob - after * 1.5).toFixed(1)}px, 0) scale(${(beat >= 2 ? e : 0).toFixed(3)})`;
   } else if (w.id === 'j') {
     jTitle.style.transform = `translate3d(0, calc(-50% + ${(-after).toFixed(0)}px), 0)`;
+    jFamily.style.transform = `translate3d(0, ${(-after).toFixed(0)}px, 0)`;
+    const family = beat === 1 || beat === 2;
+    jFamily.style.opacity = family ? 1 : 0;
+    jTitle.style.opacity = family ? 0.07 : 1;
+    if (beat === 3) pulse = Math.max(pulse, 0.9); // the root itself lights up as the story names it
   }
 }
 
@@ -835,7 +872,6 @@ function drawStage(w, sy, t, vel) {
 let last = performance.now(), prevSy = scrollY, vel = 0, currentWorld = null, navCurrent = '', wasUnder = false, lastSong = 0, impactDone = false;
 const navLinks = () => [...core.querySelectorAll('a')];
 const DATES = [['kooratna', '2026-10-31'], ['bidwars', '2026-10-28'], ['lumiku', '2026-10-13'], ['footies', '2026-09-08'], ['jadhr', '2026-06-11']];
-const today = new Date().toISOString().slice(0, 10);
 
 function seaAt(f) {
   let a = SEA_STOPS[0], b = SEA_STOPS[SEA_STOPS.length - 1];
@@ -906,6 +942,8 @@ function frame(now) {
   const metres = depthAt(mid, gaugeStops);
   const depthF = clamp(Math.log10(1 + metres) / Math.log10(10936));
   const inOrbit = mid > orbitY;
+  let zone = 0;
+  zoneStops.forEach((y, i) => { if (mid >= y) zone = i; });
 
   // The dive. Above: a camera over the water, sinking as you scroll. Then the sea climbs the lens from the
   // bottom of the screen. Under: the camera starts out looking back up at the surface and tips down into the deep.
@@ -941,7 +979,6 @@ function frame(now) {
 
   if (active && world) drawStage(active, sy, t, vel);
   drawPosters();
-  drawDials();
 
   // Colours by depth, with the root taking the world's colour inside one.
   const sea = seaAt(depthF);
@@ -1036,6 +1073,8 @@ function frame(now) {
       dhow: [innerWidth * (0.3 + 0.13 * Math.sin(t * 0.011)), mobile ? 0.72 : 1],
       impact: [fall.x, fallAge, fallAge < 3.5 ? 1 : 0],
       rootEnd: pinAt.y,
+      zone: [Math.max(zone - 1, 0), zone, clamp((mid - zoneStops[zone]) / vh)],
+      rtl: root.lang === 'ar' ? 1 : 0,
       earth: sy + vh > earthAt[1] - earthAt[2] * 1.5 && sy < earthAt[1] + earthAt[2] * 1.5 ? earthAt : [0, 0, 0],
       maskRect,
       stirs: stirs.splice(0, 4),
@@ -1056,7 +1095,7 @@ function frame(now) {
     pulseSvg.style.setProperty('--o', (1 - smooth(clamp((vh * 0.92 - r.top) / (vh * 0.7)))).toFixed(3));
   }
 
-  // Side gauge: nearest section + time, and the real depth you would be at.
+  // Side gauge: nearest section, and the real depth you would be at.
   if (now - (frame.navAt || 0) > 120) {
     frame.navAt = now;
     let id = 'surface';
@@ -1067,14 +1106,7 @@ function frame(now) {
     }
     const ar = root.lang === 'ar';
     if (depthEl) {
-      const dated = DATES.find(([d]) => d === id);
-      let txt = ar ? 'اليوم' : 'today';
-      if (dated) {
-        const days = daysBetween(dated[1], today);
-        txt = ar ? arabicDaysAgo(days) : `${days} days ago`;
-      } else if (id !== 'surface') {
-        txt = NAV.find((n) => n[0] === id)[ar ? 1 : 2];
-      }
+      const txt = NAV.find((n) => n[0] === id)[ar ? 1 : 2];
       if (depthEl.textContent !== txt) depthEl.textContent = txt;
       const link = core.querySelector('a.on');
       if (link) depthEl.style.setProperty('--y', link.offsetTop + link.offsetHeight / 2);
@@ -1119,7 +1151,7 @@ applyLang();
 drawPalm(0);
 
 // The name only needs its own font. Everything else can arrive while it comes up out of the water.
-const nameFont = document.fonts.load('400 200px Rakkas', 'لافي').catch(() => {});
+const nameFont = document.fonts.load(`400 200px ${nameFace().font}`, nameFace().text).catch(() => {});
 Promise.race([nameFont, new Promise((r) => setTimeout(r, 1800))]).then(() => {
   layout();
   introStart = performance.now();
@@ -1132,6 +1164,9 @@ Promise.race([nameFont, new Promise((r) => setTimeout(r, 1800))]).then(() => {
     document.fonts.load('400 200px Lalezar', 'كورتنا'),
     document.fonts.load('700 40px "Aref Ruqaa"', 'لافي'),
     document.fonts.load('700 40px Cairo', 'لافي'),
+    document.fonts.load('900 40px Archivo', 'SOLD'),
+    document.fonts.load('800 40px "Baloo 2"', '13'),
+    document.fonts.load('italic 900 40px "Barlow Condensed"', 'VAR'),
     document.fonts.load('500 13px "IBM Plex Sans Arabic"', 'الدبران'),
     document.fonts.load('400 11px "IBM Plex Mono"', 'Vega'),
   ]).catch(() => {}).then(() => {

@@ -94,7 +94,7 @@ uniform vec2 uCss,uRockSize,uLamp,uHoleC,uDhow;
 uniform float uT,uScroll,uSurface,uLampAmt,uBloom,uCosmic,uSunX,uRays;
 uniform float uCamH,uFocal,uWL,uAbove,uCeil,uCeilD,uPitch,uNameGlow,uFluid;
 uniform int uWaves;
-uniform vec3 uPlanet,uRim0,uRim1,uEarth,uImpact;
+uniform vec3 uPlanet,uRim0,uRim1,uEarth,uImpact,uZone;
 uniform vec4 uHole,uMaskRect;
 uniform vec4 uRipples[6];
 uniform vec4 uSeaRip[4];
@@ -102,6 +102,11 @@ uniform float uSeaRipS[4];
 ${NOISE}
 vec2 hash2(vec2 p){ p=mod(p,289.); return fract(sin(vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3))))*43758.5453); }
 vec2 envUV(vec2 c){ return vec2(c.x/uCss.x,(uCss.y-c.y)/(1.8*uCss.y)); }
+// Sunken glyphs from a 3×2 atlas, inset a hair so one tile never bleeds into the next. x: the glyph, y: its lit edge.
+vec2 glyphs(vec2 f,float z){
+  vec2 uv=(vec2(mod(z,3.),floor(z/3.))+.01+f*.98)/vec2(3.,2.), e=vec2(.0012);
+  return vec2(texture(uFossil,uv).r,texture(uFossil,uv+e).r-texture(uFossil,uv-e).r);
+}
 
 // One layer of stars: at most one per cell, at a random spot, with its own twinkle.
 float starLayer(vec2 p,float cell,float density,float size){
@@ -381,12 +386,12 @@ vec3 deepView(vec2 css,float py,vec2 flow,float att){
   vec3 col=r.rgb*(.8+.16*diff);
   col+=r.rgb*lampCol*att*(.36+.5*diff*diff);
   // Letters sunk in the water. They sway a little, and only the lamp really shows them.
-  vec2 fu=vec2(css.x+sin(py*.0034+uT*.22)*11.,css.y+uScroll*.62)/1180.;
-  float fe=2./1180.;
-  float f0=texture(uFossil,fu).r;
-  float fx=texture(uFossil,fu+vec2(fe,fe)).r-texture(uFossil,fu-vec2(fe,fe)).r;
   float seen=smoothstep(.05,.6,att);
-  if(uEarth.z<=0.) col+=lampCol*att*att*(max(fx,0.)*.24+f0*.09)*seen*mix(.55,1.,uCosmic);
+  if(seen>.001&&uEarth.z<=0.){
+    vec2 fu=fract(vec2(css.x+sin(py*.0034+uT*.22)*11.,css.y+uScroll*.62)/1180.);
+    vec2 gl=mix(glyphs(fu,uZone.x),glyphs(fu,uZone.y),uZone.z);
+    col+=lampCol*att*att*(max(gl.y,0.)*.24+gl.x*.09)*seen*mix(.55,1.,uCosmic);
+  }
   // Plankton near the top, stars by the bottom: nothing about them changes.
   vec2 sp=vec2(css.x,css.y+uScroll*.3)+vec2(flow.x,-flow.y)*.02;
   float vis=.34+.66*uCosmic;
@@ -743,13 +748,13 @@ const NAME_V = `#version 300 es
 precision highp float;
 layout(location=0) in vec2 aHome; layout(location=1) in vec4 aR;
 uniform vec2 uCss,uMouse,uDrain,uFrom; uniform vec4 uBox; // box: left,top,width,height (page px)
-uniform float uT,uIntro,uMelt,uScroll,uMouseAmt,uPx,uReform,uSignY;
+uniform float uT,uIntro,uMelt,uScroll,uMouseAmt,uPx,uReform,uSignY,uRtl;
 out float vA,vH,vCool;
 float eo(float x){ return 1.-pow(1.-x,3.); }
 void main(){
   vec2 home=uBox.xy+aHome*uBox.zw;
-  // The star hits the water and the name is thrown up out of the splash, right to left, the way it is read.
-  float dly=(1.-aHome.x)*.42+aR.x*.3;
+  // The star hits the water and the name is thrown up out of the splash, in the direction it is read.
+  float dly=(uRtl>.5?1.-aHome.x:aHome.x)*.42+aR.x*.3;
   float i=eo(clamp((uIntro-dly)/.6,0.,1.));
   vec2 from=uFrom+vec2((aR.y-.5)*70.,(aR.z-.5)*10.);
   vec2 p=mix(from,home,i);
@@ -1065,7 +1070,7 @@ export function createWorld(canvas, { mobile }) {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrap);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrap);
   };
-  const setFossils = (source) => upload(fossilTex, source, { mips: true, repeat: true });
+  const setFossils = (source) => upload(fossilTex, source);
   const setChart = (source) => upload(chartTex, source);
   const setMask = (source) => upload(maskTex, source);
   const setLand = (source) => upload(landTex, source);
@@ -1179,6 +1184,7 @@ export function createWorld(canvas, { mobile }) {
       gl.uniform2f(u.uDhow, s.dhow[0], s.dhow[1]);
       gl.uniform3fv(u.uImpact, s.impact);
       gl.uniform3fv(u.uEarth, s.earth);
+      gl.uniform3fv(u.uZone, s.zone);
       gl.uniform4fv(u.uMaskRect, s.maskRect);
       gl.uniform4f(u.uHole, s.hole ? 1 : 0, s.hole ? s.hole.r : 0, s.hole ? s.hole.bottom : 0, s.hole ? s.hole.seed : 0);
       gl.uniform2f(u.uHoleC, s.hole ? s.hole.x : 0, s.hole ? s.hole.y : 0);
@@ -1314,6 +1320,7 @@ export function createWorld(canvas, { mobile }) {
       gl.uniform1f(pName.u.uPx, dpr);
       gl.uniform1f(pName.u.uReform, s.reform);
       gl.uniform1f(pName.u.uSignY, s.signY);
+      gl.uniform1f(pName.u.uRtl, s.rtl);
       gl.uniform3fv(pName.u.uC0, s.reform > 0 ? [0.72, 0.9, 1.0] : [1.0, 0.79, 0.45]);
       gl.uniform3fv(pName.u.uC1, s.reform > 0 ? [0.96, 0.99, 1.0] : [1.0, 0.93, 0.76]);
       gl.drawArrays(gl.POINTS, 0, nameN);

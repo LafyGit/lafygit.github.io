@@ -1,29 +1,26 @@
 // Run with: node --test tests/
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import {
-  toArabicDigits, arabicDaysAgo, daysBetween, tapLetter, hexCells, cascade, comboPoints,
+  toArabicDigits, daysBetween, tapLetter, hexCells, cascade, comboPoints,
   isValidSet, rowSegments, auctionStart, raise, pass, canRaise, rivalDecides,
   depthAt, zoneAt, formatDepth, makeShoal, stepShoal, projectEarth,
 } from '../js/logic.js';
 
-test('the 142-day claim on the page matches the App Store dates', () => {
+test('dates count in whole days, for the depth gauge', () => {
   assert.equal(daysBetween('2026-06-11', '2026-10-31'), 142);
-  // The layer gaps must add up to the same number.
-  const dates = ['2026-06-11', '2026-09-08', '2026-10-13', '2026-10-28', '2026-10-31'];
-  const gaps = dates.slice(1).map((d, i) => daysBetween(dates[i], d));
-  assert.deepEqual(gaps, [89, 35, 15, 3]);
-  assert.equal(gaps.reduce((a, b) => a + b), 142);
+});
+
+test('the page states no app count and no day count, and its launch dates match the App Store', () => {
+  const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  for (const banned of ['142', '١٤٢', 'Five apps', 'Five ships', 'خمسة تطبيقات', 'days deeper', 'days ago', 'Day 0', 'Day 89', 'Eleven days']) {
+    assert.ok(!html.includes(banned), `found "${banned}"`);
+  }
+  for (const date of ['31 Oct 2026', '28 Oct 2026', '13 Oct 2026', '8 Sep 2026', '11 Jun 2026']) assert.ok(html.includes(date), date);
 });
 
 test('Arabic digits', () => assert.equal(toArabicDigits('142 / 2026'), '١٤٢ / ٢٠٢٦'));
-
-test('Arabic day counts agree with the number', () => {
-  assert.equal(arabicDaysAgo(0), 'اليوم');
-  assert.equal(arabicDaysAgo(2), 'قبل يومين');
-  assert.equal(arabicDaysAgo(5), 'قبل ٥ أيام');
-  assert.equal(arabicDaysAgo(147), 'قبل ١٤٧ يومًا');
-});
 
 test('root letters must come in order', () => {
   const root = ['ك', 'ت', 'ب'];

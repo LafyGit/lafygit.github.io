@@ -1,6 +1,6 @@
-// The earth behind the page: one WebGL2 canvas fixed over the app stages and under the text.
-// Passes per frame: rock (low-res, because it is soft) → composite (crack, sky, water, lamp)
-// → roots → dust → the name's particles.
+// The earth and the sky behind the page: one WebGL2 canvas fixed over the app stages and under the text.
+// Passes per frame: rock and nebula (low-res, because they are soft) → composite (crack, deep space,
+// water, lamp) → roots → star nodes → drifting stars → the name's particles.
 
 const QUAD = `#version 300 es
 out vec2 vUv;
@@ -17,7 +17,7 @@ float fbm(vec2 p){ float a=.5,s=0.; for(int i=0;i<4;i++){ s+=a*vn(p); p=p*2.03+v
 const ROCK = `#version 300 es
 precision highp float;
 in vec2 vUv; out vec4 o;
-uniform vec2 uCss; uniform float uT,uY; uniform vec3 uA,uB,uC,uD;
+uniform vec2 uCss; uniform float uT,uY,uCosmic; uniform vec3 uA,uB,uC,uD;
 ${NOISE}
 float h11(float x){ return fract(sin(x*127.1)*43758.5453); }
 void main(){
@@ -33,19 +33,30 @@ void main(){
   float lam=.5+.5*sin(s*31.+9.*vn(p*vec2(1.2,16.)));
   float grit=vn(css/vec2(22.,9.));
   float tone=clamp(bed*.76+lam*.08+grit*.16,0.,1.);
+  float wisp=0.,cl=0.;
+  // The deeper you dig, the more the beds let go: rock thins into clouds of gas and dust.
+  if(uCosmic>.001){
+    vec2 pc=css/860.;
+    vec2 qc=vec2(fbm(pc+vec2(t*1.4,2.)),fbm(pc+vec2(6.1,-t*1.1)));
+    cl=fbm(pc*1.5+2.5*qc+vec2(4.,t));
+    wisp=pow(1.-abs(2.*fbm(pc*2.6+1.7*qc+vec2(t,7.))-1.),6.);
+    tone=mix(tone,clamp(cl*cl*2.1+wisp*.4,0.,1.),uCosmic);
+  }
   vec3 col=tone<.4?mix(uA,uB,tone/.4):tone<.72?mix(uB,uC,(tone-.4)/.32):mix(uC,uD,(tone-.72)/.28);
   // dark seams where one bed sits on the next
-  col*=.62+.38*smoothstep(0.,.035,f)*smoothstep(1.,.965,f);
-  float h=tone*.62+grit*.2-.5*smoothstep(.035,0.,f);
+  col*=mix(.62+.38*smoothstep(0.,.035,f)*smoothstep(1.,.965,f),1.,uCosmic);
+  col+=uD*wisp*.2*uCosmic;
+  float h=mix(tone*.62+grit*.2-.5*smoothstep(.035,0.,f),.5+cl*.1,uCosmic);
   o=vec4(col,h);
 }`;
 
 const COMPOSITE = `#version 300 es
 precision highp float;
 in vec2 vUv; out vec4 o;
-uniform sampler2D uRock,uFossil;
+uniform sampler2D uRock,uFossil,uChart;
 uniform vec2 uCss,uRockSize,uLamp;
-uniform float uT,uScroll,uSurface,uLampAmt,uWaterY,uDawn;
+uniform float uT,uScroll,uSurface,uLampAmt,uWaterY,uBloom,uCosmic,uSunX;
+uniform vec3 uPlanet; // x, y, radius in px
 uniform vec4 uHole;   // x:on  y:crack radius  z:bottom edge (page y)  w:seed
 uniform vec3 uRim0,uRim1;
 uniform vec4 uRipples[6];
@@ -56,19 +67,115 @@ vec3 vor(vec2 x){ vec2 n=floor(x),f=fract(x); float md=8.; vec2 mid=vec2(0.);
   return vec3(sqrt(md),mid); }
 float ridged(vec2 p){ return 1.-abs(vn(p)*2.-1.); }
 
-// uDawn: 0 is the dusk a first visit sees. Reach the water and come back up, and it is morning.
-vec3 sky(vec2 css,float py){
+// One layer of stars: at most one per cell, at a random spot, with its own twinkle.
+float starLayer(vec2 p,float cell,float density,float size){
+  vec2 g=p/cell, id=floor(g), f=fract(g);
+  float h=h21(id);
+  if(h>density) return 0.;
+  vec2 c=hash2(id+11.)*.8+.1;
+  float d=length((f-c)*cell);
+  float tw=.62+.38*sin(uT*(.8+h*40.)+h*300.);
+  return smoothstep(size,size*.25,d)*tw*(.4+.6*h/density);
+}
+
+// A streak every so often. Each one lives for the first 12% of its period.
+float meteor(vec2 css,float seed,float period){
+  float t=uT/period+seed, id=floor(t), f=fract(t);
+  if(f>.12) return 0.;
+  float u=f/.12;
+  vec2 a=vec2(h21(vec2(id,seed))*uCss.x,h21(vec2(seed,id+3.))*uSurface*.62);
+  vec2 dir=normalize(vec2(h21(vec2(id,9.))>.5?1.:-1.,.5+h21(vec2(id,4.))*.3));
+  float len=min(uCss.x*.2,240.);
+  vec2 head=a+dir*len*1.5*u;
+  vec2 ba=dir*len*.7, pa=css-(head-ba);
+  float h=clamp(dot(pa,ba)/dot(ba,ba),0.,1.);
+  return smoothstep(1.7,0.,length(pa-ba*h))*h*h*sin(u*3.1416);
+}
+
+// A ringed planet, lit from the side by the sun low on the horizon.
+vec3 planet(vec3 c,vec2 css){
+  vec2 pc=vec2(uPlanet.x,uPlanet.y-uScroll*.42);
+  vec2 q=(css-pc)/uPlanet.z;
+  float r2=dot(q,q);
+  if(r2>6.) return c;
+  float ca=cos(-.38),sa=sin(-.38);
+  vec2 t=vec2(ca*q.x-sa*q.y,sa*q.x+ca*q.y);
+  vec3 L=normalize(vec3(.72,.52,.46));
+  float ringR=length(vec2(t.x,t.y/.27));
+  float rtex=clamp(.55+.3*sin(ringR*38.)+.15*sin(ringR*91.),0.,1.);
+  float gap=1.-.85*smoothstep(1.66,1.68,ringR)*smoothstep(1.76,1.74,ringR);
+  float ring=smoothstep(1.36,1.39,ringR)*smoothstep(2.08,2.02,ringR)*gap*(.14+.46*rtex);
+  // The planet's shadow falls across the far side of the ring.
+  vec2 lx=normalize(L.xy);
+  float side=dot(q,lx), perp=abs(dot(q,vec2(-lx.y,lx.x)));
+  float shade=mix(1.,smoothstep(.82,1.05,perp),smoothstep(.1,-.25,side));
+  vec3 ringC=mix(vec3(.5,.4,.42),vec3(.98,.84,.68),rtex)*(.2+.8*shade);
+  if(t.y<0.) c=mix(c,ringC,ring);
+  float rr=sqrt(r2);
+  if(rr<1.){
+    float z=sqrt(1.-r2);
+    vec3 n=vec3(q,z);
+    float d=max(dot(n,L),0.);
+    float lat=t.y*3.3+.5*fbm(vec2(t.x*1.1,t.y*7.)+4.);
+    vec3 alb=mix(vec3(.36,.26,.4),vec3(.78,.56,.42),.5+.5*sin(lat*3.3));
+    alb=mix(alb,vec3(.92,.78,.62),smoothstep(.6,1.,.5+.5*sin(lat*8.3+1.))*.32);
+    vec3 body=alb*(pow(d,.85)*1.05+.01)+vec3(.45,.6,1.)*pow(1.-z,2.4)*smoothstep(-.05,.4,d)*.75;
+    c=mix(c,body,smoothstep(1.,.975,rr));
+  } else {
+    c+=vec3(.32,.42,.95)*exp(-(rr-1.)*8.)*.2*max(dot(normalize(vec3(q,.3)),L),0.);
+  }
+  if(t.y>=0.) c=mix(c,ringC,ring);
+  return c;
+}
+
+// Space, with a thin burn of dusk at the very bottom. uBloom: reach the water and come back up,
+// and the sun has gone, the galaxy is brighter, the aurora is out and the meteors come faster.
+vec3 sky(vec2 css,float py,float att){
   float k=clamp(py/uSurface,0.,1.);
-  vec3 zen=mix(vec3(.05,.07,.17),vec3(.22,.46,.66),uDawn);
-  vec3 mid=mix(vec3(.34,.16,.25),vec3(.86,.72,.58),uDawn);
-  vec3 hor=mix(vec3(.98,.5,.19),vec3(1.,.8,.5),uDawn);
-  vec3 c=mix(zen,mid,smoothstep(.0,.72,k)); c=mix(c,hor,pow(k,3.6));
-  vec2 sp=vec2(uCss.x*.7,mix(uSurface*.98,uSurface*.56,uDawn));
-  float sd=length(css-sp);
-  c+=vec3(1.,.66,.32)*(.55*exp(-sd/70.)+.28*exp(-sd/260.));
-  vec2 g=css/2.6; vec2 id=floor(g); float s=h21(id);
-  float st=smoothstep(.992,1.,s)*(.55+.45*sin(uT*1.4+s*90.))*smoothstep(1.,.25,k);
-  c+=vec3(1.,.95,.86)*st*.28*(1.-uDawn);
+  vec2 sp=vec2(css.x,css.y+uScroll*.18);
+  vec3 c=mix(vec3(.006,.008,.03),vec3(.035,.022,.085),smoothstep(.1,.72,k));
+  c=mix(c,mix(vec3(.2,.06,.2),vec3(.03,.06,.14),uBloom),smoothstep(.6,.9,k));
+  c=mix(c,mix(vec3(.97,.44,.16),vec3(.05,.3,.32),uBloom),smoothstep(.87,1.,k)*(.3+.7*smoothstep(.94,1.,k)));
+  // far nebulae
+  c+=vec3(.2,.05,.27)*pow(fbm(sp/420.+9.),3.)*.9*smoothstep(1.,.5,k);
+  c+=vec3(.03,.15,.22)*pow(fbm(sp/360.+21.),3.)*.9*smoothstep(1.,.5,k);
+  // the Milky Way: a long diagonal band that leans over the palm, cut by dark dust lanes
+  vec2 dir=normalize(vec2(1.,-.6)), nrm=vec2(-dir.y,dir.x);
+  vec2 rel=sp-vec2(uSunX,uSurface*.86);
+  float along=dot(rel,dir), across=dot(rel,nrm);
+  float wid=max(uCss.x,uCss.y)*.125;
+  float warp=(fbm(sp/250.)-.5)*wid*1.15;
+  float band=exp(-pow((across+warp)/wid,2.));
+  float detail=fbm(sp/85.+3.);
+  float lanes=smoothstep(.42,.66,fbm(vec2(along/210.,(across+warp)/34.)));
+  float core=exp(-pow(along/(uCss.x*.4),2.));
+  float glow=band*(.3+.7*detail)*(1.-.74*lanes*smoothstep(.2,.8,band));
+  c+=mix(vec3(.15,.2,.44),vec3(.72,.5,.44),core*detail)*glow*(.42+.55*core)*(1.+.9*uBloom)*smoothstep(1.,.66,k);
+  // stars, thicker inside the band
+  float fade=smoothstep(1.,.72,k);
+  float s=starLayer(sp,5.,.2+.38*band,1.05)*.9+starLayer(sp+17.,17.,.16,1.5)+starLayer(sp+41.,61.,.26,2.5)*1.4;
+  float halo=starLayer(sp+41.,61.,.26,10.)*.16;
+  c+=vec3(.86,.9,1.)*(s+halo)*fade*(.8+.2*uBloom);
+  c=planet(c,css);
+  // named stars are always there; their lines and names come out under the lamp
+  vec3 ch=texture(uChart,vec2(css.x/uCss.x,(css.y+uScroll*.18)/uSurface)).rgb;
+  c+=vec3(.96,.98,1.)*ch.r*fade;
+  c+=vec3(.6,.78,1.)*ch.g*fade*(.05+smoothstep(.04,.5,att)*.95);
+  c+=vec3(.16,.18,.3)*att*att*.22*fade;
+  // the sun going down behind the palm
+  float sd=length(css-vec2(uSunX,uSurface*.99));
+  c+=vec3(1.,.62,.3)*(.6*exp(-sd/62.)+.3*exp(-sd/230.))*(1.-uBloom);
+  // aurora, once the palm has been watered
+  if(uBloom>.001){
+    float x=css.x/170.;
+    float cur=pow(fbm(vec2(x+uT*.06,uT*.03)),1.5);
+    float fold=.5+.5*sin(x*5.+fbm(vec2(x*.7,uT*.08))*9.);
+    float rangeY=smoothstep(.97,.6,k)*smoothstep(.2,.6,k);
+    c+=mix(vec3(.08,.95,.58),vec3(.48,.22,.9),smoothstep(.72,.32,k))*cur*fold*rangeY*.62*uBloom;
+  }
+  float m=meteor(css,.13,7.)+meteor(css,.61,11.);
+  if(uBloom>.5) m+=meteor(css,.37,2.3)+meteor(css,.83,3.1);
+  c+=vec3(.92,.96,1.)*m;
   return c;
 }
 
@@ -96,12 +203,20 @@ void main(){
   float fe=2./1180.;
   float f0=texture(uFossil,fu).r;
   float fx=texture(uFossil,fu+vec2(fe,fe)).r-texture(uFossil,fu-vec2(fe,fe)).r;
-  vec3 lampCol=vec3(1.,.8,.55);
+  vec3 lampCol=mix(vec3(1.,.8,.55),vec3(.66,.74,1.),uCosmic);
   col=r.rgb*(.74+.18*diff);
-  col+=r.rgb*lampCol*att*(.7+2.6*diff*diff);
+  col+=r.rgb*lampCol*att*(mix(.7,.28,uCosmic)+mix(2.6,.42,uCosmic)*diff*diff);
   float seen=smoothstep(.05,.6,att);
-  col*=1.-.5*f0*seen;
-  col+=lampCol*att*att*(max(fx,0.)*.5+f0*.035)*seen;
+  // Embossed in rock; further down the same letters glow, like something written in the dark.
+  col*=1.-mix(.5,.08,uCosmic)*f0*seen;
+  col+=lampCol*att*att*(max(fx,0.)*.5+f0*mix(.035,.22,uCosmic))*seen;
+
+  // Stars come through as the rock thins out.
+  if(uCosmic>.001){
+    vec2 sp=vec2(css.x,css.y+uScroll*.3);
+    float st=starLayer(sp,7.,.15,1.05)+starLayer(sp+29.,23.,.11,1.6)*1.2+starLayer(sp+53.,83.,.2,2.7)*1.5+starLayer(sp+53.,83.,.2,11.)*.12;
+    col+=vec3(.86,.9,1.)*st*uCosmic;
+  }
 
   // A few minerals catch the light.
   float mica=smoothstep(.985,1.,h21(floor(vec2(css.x,css.y+uScroll*.72)/2.)));
@@ -109,16 +224,18 @@ void main(){
 
   // The surface and the sky above it.
   if(py<uSurface+90.){
-    float ridge=uSurface-8.+(fbm(vec2(css.x/360.,3.1))-.5)*44.;
-    float far=uSurface-16.+(fbm(vec2(css.x/210.+7.,1.4))-.5)*64.;
+    float near=exp(-pow((css.x-uSunX)/95.,2.));
+    // The ground runs level under the palm, so it always has something to stand on.
+    float ridge=mix(uSurface-8.+(fbm(vec2(css.x/360.,3.1))-.5)*44.,uSurface-1.,near);
+    float far=mix(uSurface-16.+(fbm(vec2(css.x/210.+7.,1.4))-.5)*64.,uSurface-9.,near);
     if(py<ridge){
-      col=sky(css,py);
-      vec3 dune=mix(vec3(.22,.1,.09),vec3(.56,.33,.18),uDawn);
+      col=sky(css,py,att);
+      vec3 dune=mix(vec3(.17,.07,.08),vec3(.015,.03,.05),uBloom);
       col=mix(col,dune,smoothstep(far-.8,far+.8,py));
     }
     float lit=smoothstep(ridge+.8,ridge-.8,py);
     float crust=smoothstep(ridge+80.,ridge,py)*(1.-lit);
-    col+=mix(vec3(.3,.15,.07),vec3(.42,.24,.1),uDawn)*crust*.5;
+    col+=mix(vec3(.3,.15,.07),vec3(.03,.09,.1),uBloom)*crust*.5;
   }
 
   // Groundwater at the bottom of everything.
@@ -154,6 +271,8 @@ void main(){
       col+=vec3(.75,1.,.97)*surf*.85;
       col+=vec3(.2,.6,.6)*exp(-(py-wy)/60.)*.28;
       col+=lampCol*att*.12;
+      vec2 ws=vec2(css.x+sin(py*.03+uT)*3.,css.y+uScroll*.3);
+      col+=vec3(.72,.96,1.)*(starLayer(ws,9.,.16,1.2)+starLayer(ws+31.,37.,.14,2.)*1.3)*(.8-.5*depth);
     }
   }
 
@@ -181,7 +300,7 @@ void main(){
       rc+=uRim1*pow(h21(v.yz+7.),14.)*(.6+.4*sin(uT*2.+h21(v.yz)*40.))*1.3;
       col=mix(rc,col,smoothstep(.04,1.,u));
     }
-    col+=uRim1*exp(-max(d,0.)/190.)*.32*step(0.,d);
+    col+=uRim1*exp(-max(d,0.)/mix(190.,320.,uCosmic))*mix(.32,.5,uCosmic)*step(0.,d);
     float alpha=smoothstep(-1.2,1.2,d);
     float inner=smoothstep(-70.,0.,d)*.55*(1.-alpha);
     a=alpha;
@@ -228,29 +347,64 @@ const DUST_V = `#version 300 es
 precision highp float;
 layout(location=0) in vec4 aR;
 uniform vec2 uCss,uLamp; uniform float uScroll,uT,uVel,uPx;
-out float vA;
+out float vA,vR,vTint;
 void main(){
   float depth=.25+aR.z*.9;
-  float x=aR.x*uCss.x+sin(uT*.13+aR.w*20.)*22.;
-  float y=mod(aR.y*uCss.y*1.4-uScroll*depth*.8-uT*(3.+aR.w*5.),uCss.y*1.4)-uCss.y*.2;
-  float dl=length(vec2(x,y)-uLamp);
-  float lit=exp(-dl/230.);
+  float x=aR.x*uCss.x+sin(uT*.1+aR.w*20.)*14.;
+  float y=mod(aR.y*uCss.y*1.4-uScroll*depth*.8-uT*(2.+aR.w*4.),uCss.y*1.4)-uCss.y*.2;
+  float lit=exp(-length(vec2(x,y)-uLamp)/230.);
+  // Scroll fast and the nearer stars stretch into warp streaks.
+  float stretch=1.+min(abs(uVel)*.2*depth,24.);
   gl_Position=vec4(x/uCss.x*2.-1.,1.-y/uCss.y*2.,0.,1.);
-  gl_PointSize=(1.+aR.z*2.)*uPx*(1.+min(abs(uVel)*.02,1.2));
-  vA=(.07+.2*aR.w+.75*lit)*(.6+.4*sin(uT*.9+aR.w*30.));
+  gl_PointSize=(1.+aR.z*1.9)*uPx*stretch;
+  vR=1./stretch;
+  vTint=aR.w;
+  vA=(.16+.34*aR.w+.6*lit)*(.6+.4*sin(uT*.9+aR.w*30.));
 }`;
 
 const DUST_F = `#version 300 es
 precision mediump float;
-in float vA; out vec4 o; uniform vec3 uColor;
-void main(){ float d=length(gl_PointCoord-.5)*2.; float a=smoothstep(1.,.1,d)*vA; vec3 rgb=uColor*a; o=vec4(rgb,max(rgb.r,max(rgb.g,rgb.b))); }`;
+in float vA,vR,vTint; out vec4 o; uniform vec3 uColor;
+void main(){
+  vec2 q=(gl_PointCoord-.5)*2.; q.x/=vR;
+  float a=smoothstep(1.,.1,length(q))*vA;
+  vec3 tint=vTint>.72?vec3(1.,.86,.72):vTint<.3?vec3(.72,.82,1.):vec3(1.);
+  vec3 rgb=uColor*tint*a;
+  o=vec4(rgb,max(rgb.r,max(rgb.g,rgb.b)));
+}`;
+
+// Stars at the forks of the roots. The web underground and the web of galaxies look alike, so let them.
+const NODE_V = `#version 300 es
+precision highp float;
+layout(location=0) in vec4 aN; // x, y, growth, seed
+uniform vec2 uCss; uniform float uScroll,uFront,uT,uPx,uDimTo;
+out float vA;
+void main(){
+  float rev=smoothstep(30.,140.,uFront-aN.z);
+  gl_Position=vec4(aN.x/uCss.x*2.-1.,1.-(aN.y-uScroll)/uCss.y*2.,0.,1.);
+  float tw=.55+.45*sin(uT*(.7+aN.w*2.4)+aN.w*60.);
+  gl_PointSize=(6.+aN.w*11.)*uPx*(.6+.4*tw)*rev;
+  vA=rev*tw*mix(.25,1.,smoothstep(uDimTo-240.,uDimTo,aN.y));
+}`;
+
+const NODE_F = `#version 300 es
+precision mediump float;
+in float vA; out vec4 o; uniform vec3 uColor; uniform float uInk;
+void main(){
+  vec2 q=(gl_PointCoord-.5)*2.; float d=dot(q,q);
+  float cross=max(0.,1.-abs(q.x)*13.)*max(0.,1.-abs(q.y))+max(0.,1.-abs(q.y)*13.)*max(0.,1.-abs(q.x));
+  float a=min(1.,(exp(-d*30.)+.2*exp(-d*5.)+.3*cross)*vA);
+  vec3 c=mix(mix(uColor,vec3(1.),.6),uColor,uInk);
+  vec3 rgb=c*a;
+  o=vec4(rgb,mix(max(rgb.r,max(rgb.g,rgb.b)),a,uInk));
+}`;
 
 const NAME_V = `#version 300 es
 precision highp float;
 layout(location=0) in vec2 aHome; layout(location=1) in vec4 aR;
 uniform vec2 uCss,uMouse,uDrain; uniform vec4 uBox; // box: left,top,width,height (page px)
 uniform float uT,uIntro,uMelt,uScroll,uMouseAmt,uPx,uReform,uWaterY;
-out float vA; out float vH;
+out float vA,vH,vCool;
 float eo(float x){ return 1.-pow(1.-x,3.); }
 void main(){
   vec2 home=uBox.xy+aHome*uBox.zw;
@@ -284,16 +438,19 @@ void main(){
     p=mix(start,refl,rd); back=rd;
   }
   gl_Position=vec4(p.x/uCss.x*2.-1.,1.-(p.y-uScroll)/uCss.y*2.,0.,1.);
-  gl_PointSize=(1.25+1.55*aR.y)*uPx*(1.+.9*f);
+  // Most grains are dust; a few are real stars.
+  gl_PointSize=(1.15+1.4*aR.y+step(.982,aR.x)*3.2)*uPx*(1.+.9*f);
   float aa=i*(1.-smoothstep(.72,1.,m))*(.9+.1*aR.x);
-  vA=uReform>0.?back*(.34+.3*aR.x):aa;
+  float tw=.8+.2*sin(uT*(1.1+2.8*aR.z)+aR.w*50.);
+  vA=uReform>0.?back*(.34+.3*aR.x):aa*tw;
   vH=aR.z+f;
+  vCool=step(.84,aR.w);
 }`;
 
 const NAME_F = `#version 300 es
 precision mediump float;
-in float vA,vH; out vec4 o; uniform vec3 uC0,uC1;
-void main(){ float d=length(gl_PointCoord-.5)*2.; float a=smoothstep(1.,.25,d)*vA; vec3 c=mix(uC0,uC1,clamp(vH,0.,1.))*a; o=vec4(c,max(c.r,max(c.g,c.b))); }`;
+in float vA,vH,vCool; out vec4 o; uniform vec3 uC0,uC1;
+void main(){ float d=length(gl_PointCoord-.5)*2.; float a=smoothstep(1.,.25,d)*vA; vec3 c=mix(mix(uC0,uC1,clamp(vH,0.,1.)),vec3(.74,.85,1.),vCool*.8)*a; o=vec4(c,max(c.r,max(c.g,c.b))); }`;
 
 function compile(gl, vs, fs) {
   const make = (type, src) => {
@@ -327,6 +484,7 @@ export function buildRoots({ width, height, anchors, startX, startY, density }) 
   const R = rng(1142);
   const verts = [];
   const idx = [];
+  const nodes = [];
   let vCount = 0;
 
   const addPath = (pts, seed) => {
@@ -370,6 +528,7 @@ export function buildRoots({ width, height, anchors, startX, startY, density }) 
     const step = 11;
     let a = angle;
     let travelled = 0;
+    if (R() < 0.6) nodes.push(x, y, g, R());
     while (travelled < len) {
       const k = travelled / len;
       pts.push({ x, y, w: w * (1 - k * 0.92), g: g + travelled * 0.7 });
@@ -384,6 +543,7 @@ export function buildRoots({ width, height, anchors, startX, startY, density }) 
       if (x < -80 || x > width + 80 || y > height) break;
     }
     addPath(pts, R());
+    if (pts.length > 4) { const tip = pts[pts.length - 1]; nodes.push(tip.x, tip.y, tip.g, R()); }
   };
 
   // Taproot, with branches thrown off it. Rich stretches (the rock between worlds) get more.
@@ -409,7 +569,7 @@ export function buildRoots({ width, height, anchors, startX, startY, density }) 
   addPath(tap, 0.31);
 
   const tapAt = (y) => tap[Math.max(0, Math.min(tap.length - 1, Math.round((y - startY) / 13)))].x;
-  return { verts: new Float32Array(verts), idx: new Uint32Array(idx), tapAt };
+  return { verts: new Float32Array(verts), idx: new Uint32Array(idx), nodes: new Float32Array(nodes), tapAt };
 }
 
 export function createWorld(canvas, { mobile }) {
@@ -421,12 +581,16 @@ export function createWorld(canvas, { mobile }) {
   const pRoot = compile(gl, ROOT_V, ROOT_F);
   const pDust = compile(gl, DUST_V, DUST_F);
   const pName = compile(gl, NAME_V, NAME_F);
+  const pNode = compile(gl, NODE_V, NODE_F);
   const emptyVAO = gl.createVertexArray();
 
   const rockTex = gl.createTexture();
   const rockFbo = gl.createFramebuffer();
   const fossilTex = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_2D, fossilTex);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 255]));
+  const chartTex = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, chartTex);
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 255]));
 
   let cssW = 1, cssH = 1, dpr = 1, rockW = 1, rockH = 1, quality = 0;
@@ -459,7 +623,16 @@ export function createWorld(canvas, { mobile }) {
   const rootVB = gl.createBuffer();
   const rootIB = gl.createBuffer();
   let rootCount = 0;
-  function setRoots({ verts, idx }) {
+  const nodeVAO = gl.createVertexArray();
+  const nodeVB = gl.createBuffer();
+  let nodeN = 0;
+  function setRoots({ verts, idx, nodes }) {
+    gl.bindVertexArray(nodeVAO);
+    gl.bindBuffer(gl.ARRAY_BUFFER, nodeVB);
+    gl.bufferData(gl.ARRAY_BUFFER, nodes, gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(0);
+    gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 0, 0);
+    nodeN = nodes.length / 4;
     gl.bindVertexArray(rootVAO);
     gl.bindBuffer(gl.ARRAY_BUFFER, rootVB);
     gl.bufferData(gl.ARRAY_BUFFER, verts, gl.STATIC_DRAW);
@@ -479,7 +652,7 @@ export function createWorld(canvas, { mobile }) {
   }
 
   // Dust
-  const dustN = mobile ? 180 : 420;
+  const dustN = mobile ? 380 : 900;
   const dustVAO = gl.createVertexArray();
   {
     const R = rng(77);
@@ -524,6 +697,15 @@ export function createWorld(canvas, { mobile }) {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
   }
 
+  function setChart(source) {
+    gl.bindTexture(gl.TEXTURE_2D, chartTex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  }
+
   const ripples = new Float32Array(24);
   let rippleI = 0;
   function addRipple(x, pageY, strength = 1) {
@@ -548,6 +730,7 @@ export function createWorld(canvas, { mobile }) {
       gl.uniform3fv(pRock.u.uB, s.pal[1]);
       gl.uniform3fv(pRock.u.uC, s.pal[2]);
       gl.uniform3fv(pRock.u.uD, s.pal[3]);
+      gl.uniform1f(pRock.u.uCosmic, s.cosmic);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
       gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
@@ -567,6 +750,10 @@ export function createWorld(canvas, { mobile }) {
       gl.activeTexture(gl.TEXTURE1);
       gl.bindTexture(gl.TEXTURE_2D, fossilTex);
       gl.uniform1i(pComp.u.uFossil, 1);
+      gl.activeTexture(gl.TEXTURE2);
+      gl.bindTexture(gl.TEXTURE_2D, chartTex);
+      gl.uniform1i(pComp.u.uChart, 2);
+      gl.activeTexture(gl.TEXTURE0);
       gl.uniform2f(pComp.u.uCss, cssW, cssH);
       gl.uniform2f(pComp.u.uRockSize, rockW, rockH);
       gl.uniform2f(pComp.u.uLamp, s.lampX, s.lampY);
@@ -575,7 +762,10 @@ export function createWorld(canvas, { mobile }) {
       gl.uniform1f(pComp.u.uScroll, s.scroll);
       gl.uniform1f(pComp.u.uSurface, s.surface);
       gl.uniform1f(pComp.u.uWaterY, s.waterVisible ? s.waterY : 0);
-      gl.uniform1f(pComp.u.uDawn, s.dawn);
+      gl.uniform1f(pComp.u.uBloom, s.bloom);
+      gl.uniform1f(pComp.u.uCosmic, s.cosmic);
+      gl.uniform1f(pComp.u.uSunX, s.sunX);
+      gl.uniform3fv(pComp.u.uPlanet, s.planet);
       gl.uniform4f(pComp.u.uHole, s.hole ? 1 : 0, s.hole ? s.hole.r : 0, s.hole ? s.hole.bottom : 0, s.hole ? s.hole.seed : 0);
       gl.uniform3fv(pComp.u.uRim0, s.hole ? s.hole.rim0 : [0, 0, 0]);
       gl.uniform3fv(pComp.u.uRim1, s.hole ? s.hole.rim1 : [0, 0, 0]);
@@ -606,6 +796,20 @@ export function createWorld(canvas, { mobile }) {
       gl.uniform1f(pRoot.u.uGlow, 0);
       gl.uniform1f(pRoot.u.uWide, 1);
       gl.drawElements(gl.TRIANGLES, rootCount, gl.UNSIGNED_INT, 0);
+    }
+
+    if (nodeN) {
+      gl.useProgram(pNode.p);
+      gl.bindVertexArray(nodeVAO);
+      gl.uniform2f(pNode.u.uCss, cssW, cssH);
+      gl.uniform1f(pNode.u.uScroll, s.scroll);
+      gl.uniform1f(pNode.u.uFront, s.front);
+      gl.uniform1f(pNode.u.uDimTo, s.dimTo);
+      gl.uniform1f(pNode.u.uT, s.t);
+      gl.uniform1f(pNode.u.uPx, dpr);
+      gl.uniform1f(pNode.u.uInk, s.rootInk);
+      gl.uniform3fv(pNode.u.uColor, s.rootColor);
+      gl.drawArrays(gl.POINTS, 0, nodeN);
     }
 
     gl.useProgram(pDust.p);
@@ -649,5 +853,5 @@ export function createWorld(canvas, { mobile }) {
     return true;
   }
 
-  return { gl, resize, setRoots, setName, setFossils, addRipple, render, lowerQuality };
+  return { gl, resize, setRoots, setName, setFossils, setChart, addRipple, render, lowerQuality };
 }

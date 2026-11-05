@@ -54,12 +54,14 @@ const NAV = [
   ['crew', 'الطاقم', 'Crew', '#ffd28c', .6],
   ['water', 'الماء', 'Water', '#3fd0c9', .8],
 ];
-// Rock colour by how far down the page you are. Warm sandstone near the top, cold water-stained stone at the bottom.
+// Colour by how far down the page you are: warm sandstone at the surface, then violet, then deep
+// blue nebula, then the cold light of the water at the bottom.
 const ROCK_STOPS = [
-  { at: 0, pal: ['#0f0805', '#1d1009', '#2f1b0d', '#4a2d15'].map(rgb), root: rgb('#ffc36f'), dust: rgb('#ffc98a') },
-  { at: .3, pal: ['#0e0708', '#1b0e10', '#2e1718', '#472a24'].map(rgb), root: rgb('#ffb27a'), dust: rgb('#ffc0a0') },
-  { at: .6, pal: ['#09070c', '#141019', '#221b27', '#372c38'].map(rgb), root: rgb('#ffcf9c'), dust: rgb('#d9c2d8') },
-  { at: .86, pal: ['#060a0e', '#0c151b', '#15232a', '#24383c'].map(rgb), root: rgb('#ffe2b0'), dust: rgb('#b9e2e0') },
+  { at: 0, pal: ['#0f0805', '#1d1009', '#2f1b0d', '#4a2d15'].map(rgb), root: rgb('#ffc36f'), dust: rgb('#ffe6c4') },
+  { at: .16, pal: ['#0a0610', '#170d20', '#2c1534', '#4a2447'].map(rgb), root: rgb('#ffc0a8'), dust: rgb('#ffe9ee') },
+  { at: .42, pal: ['#05060f', '#0e0a26', '#221243', '#54245e'].map(rgb), root: rgb('#d9c4ff'), dust: rgb('#f2ecff') },
+  { at: .68, pal: ['#03060f', '#091230', '#122952', '#27587c'].map(rgb), root: rgb('#b8d4ff'), dust: rgb('#e6f0ff') },
+  { at: .88, pal: ['#030a12', '#06152a', '#0b2c40', '#1a5c66'].map(rgb), root: rgb('#c4f0ff'), dust: rgb('#dcf6ff') },
   { at: 1, pal: ['#040d11', '#08191f', '#0d282e', '#173f45'].map(rgb), root: rgb('#d8fff4'), dust: rgb('#bdf5ee') },
 ];
 
@@ -314,6 +316,7 @@ const pulseSvg = document.querySelector('.pulse-line');
 let pulseOn = false;
 new IntersectionObserver(([e]) => { pulseOn = e.isIntersecting; }).observe(pulseSvg);
 const box = { x: 0, y: 0, w: 1, h: 1 };
+let sunX = 0, planetAt = [0, 0, 1], chartKey = '';
 let heroBottom = 800, surfaceY = 0, waterY = 1e9, pageH = 1, vh = innerHeight, drainX = 0, drainY = 0;
 let introStart = performance.now();
 let front = 0;
@@ -396,6 +399,82 @@ function fossils() {
   world.setFossils(c);
 }
 
+// Real constellations, with the Arabic names most of these stars still go by in every language.
+// Red channel: the stars, always visible. Green channel: lines and names, which the lamp brings out.
+const CONSTELLATIONS = [
+  { at: [.8, .1], w: .2, phone: [.58, .2, .34], lines: [[0, 1], [0, 2], [1, 4], [2, 3], [3, 4], [2, 5], [4, 6], [5, 6]], stars: [
+    [.2, .08, 1.5, 'يد الجوزاء', 'Betelgeuse'], [.72, .14, 1], [.38, .5, 1, 'النطاق', 'Alnitak', -1], [.5, .46, 1], [.62, .42, 1, 'المنطقة', 'Mintaka', 1], [.28, .95, 1, 'سيف الجبّار', 'Saiph'], [.8, .9, 1.4, 'رِجل الجبّار', 'Rigel'],
+  ] },
+  { at: [.4, .05], w: .24, flat: .44, lines: [[0, 1], [1, 2], [2, 3], [3, 0], [3, 4], [4, 5], [5, 6]], stars: [
+    [.06, .14, 1.2, 'الدُّب', 'Dubhe'], [.04, .62, 1, 'المراق', 'Merak'], [.28, .84, 1], [.3, .42, .9], [.5, .46, 1], [.68, .62, 1.1, 'المئزر', 'Mizar'], [.95, .94, 1.1, 'القائد', 'Alkaid'],
+  ] },
+  { at: [.05, .56], w: .17, lines: [[0, 1], [1, 2], [2, 0]], stars: [
+    [.1, .1, 1.5, 'النسر الواقع', 'Vega'], [.92, .24, 1.1, 'ذنب الدجاجة', 'Deneb'], [.46, .98, 1.3, 'النسر الطائر', 'Altair'],
+  ] },
+  { at: [.685, .2], w: .01, phone: [.1, .55, .01], lines: [], stars: [[0, 0, 1.4, 'الدبران', 'Aldebaran']] },
+  { at: [.27, .5], w: .01, lines: [], stars: [[0, 0, 1.2, 'فم الحوت', 'Fomalhaut']] },
+];
+
+function drawChart(W, H) {
+  const dpr = Math.min(devicePixelRatio || 1, 1.5);
+  const c = document.createElement('canvas');
+  c.width = Math.round(W * dpr);
+  c.height = Math.round(H * dpr);
+  const g = c.getContext('2d');
+  g.scale(dpr, dpr);
+  g.fillStyle = '#000';
+  g.fillRect(0, 0, W, H);
+  g.globalCompositeOperation = 'lighter';
+  const narrow = W < 760;
+  CONSTELLATIONS.forEach((k) => {
+    if (narrow && !k.phone) return;
+    const [ax, ay, aw] = narrow ? k.phone : [...k.at, k.w];
+    const bw = aw * W;
+    const bh = bw * (k.flat || 1.25);
+    const pts = k.stars.map(([x, y, m, ar, en, side]) => ({ x: ax * W + x * bw, y: ay * H + y * bh, m, ar, en, side }));
+    g.strokeStyle = '#00ff00';
+    g.lineWidth = 1;
+    g.globalAlpha = .6;
+    k.lines.forEach(([a, b]) => {
+      const dx = pts[b].x - pts[a].x, dy = pts[b].y - pts[a].y, len = Math.hypot(dx, dy) || 1;
+      // Lines stop short of the stars, the way a star chart draws them.
+      g.beginPath();
+      g.moveTo(pts[a].x + (dx / len) * 7, pts[a].y + (dy / len) * 7);
+      g.lineTo(pts[b].x - (dx / len) * 7, pts[b].y - (dy / len) * 7);
+      g.stroke();
+    });
+    g.globalAlpha = 1;
+    pts.forEach((p) => {
+      g.fillStyle = '#ff0000';
+      g.beginPath();
+      g.arc(p.x, p.y, 1.1 * p.m, 0, 6.283);
+      g.fill();
+      g.globalAlpha = .16;
+      g.beginPath();
+      g.arc(p.x, p.y, 4.4 * p.m, 0, 6.283);
+      g.fill();
+      g.globalAlpha = 1;
+      if (!p.ar) return;
+      g.fillStyle = '#00ff00';
+      g.textAlign = p.side ? (p.side < 0 ? 'right' : 'left') : 'center';
+      g.textBaseline = 'top';
+      const lx = p.x + (p.side || 0) * 10;
+      const ly = p.side ? p.y - 9 : p.y + 8;
+      g.direction = 'rtl';
+      g.textAlign = p.side ? (p.side < 0 ? 'left' : 'right') : 'center'; // start and end swap in RTL
+      g.font = `500 ${narrow ? 11.5 : 13}px "IBM Plex Sans Arabic", sans-serif`;
+      g.fillText(p.ar, lx, ly);
+      g.direction = 'ltr';
+      g.textAlign = p.side ? (p.side < 0 ? 'right' : 'left') : 'center';
+      g.globalAlpha = .72;
+      g.font = `400 ${narrow ? 9.5 : 10.5}px "IBM Plex Mono", monospace`;
+      g.fillText(p.en, lx, ly + (narrow ? 15 : 17));
+      g.globalAlpha = 1;
+    });
+  });
+  world.setChart(c);
+}
+
 function layout() {
   vh = canvas.clientHeight || innerHeight;
   pageH = document.documentElement.scrollHeight;
@@ -414,7 +493,13 @@ function layout() {
   drainX = box.x + box.w / 2;
   drainY = box.y + box.h * 0.8;
   const width = canvas.clientWidth;
-  const anchors = [{ y: surfaceY, x: 0.7, rich: 0.5 }];
+  const palmBox = palmSvg.getBoundingClientRect();
+  sunX = palmBox.left + palmBox.width / 2;
+  const pr = clamp(width * 0.052, 38, 92);
+  planetAt = [width * (width < 760 ? 0.27 : 0.17), Math.max(pr * 1.5 + 74, surfaceY * 0.3), pr];
+  const key = [width, surfaceY, document.fonts.check('500 13px "IBM Plex Sans Arabic"', 'الدبران')].join();
+  if (key !== chartKey) { chartKey = key; drawChart(width, surfaceY); }
+  const anchors = [{ y: surfaceY, x: sunX / width, rich: 0.5 }];
   sections.forEach((s) => {
     const y = s.offsetTop;
     // data-root is measured along the reading direction, so the root stays clear of the text in both languages.
@@ -430,7 +515,7 @@ function layout() {
   });
   anchors.push({ y: waterY - 20, x: 0.5, rich: 1.2 });
   anchors.sort((a, b) => a.y - b.y);
-  const mesh = buildRoots({ width, height: waterY + 6, anchors, startX: width * 0.7, startY: surfaceY, density: mobile ? 0.48 : 1 });
+  const mesh = buildRoots({ width, height: waterY + 6, anchors, startX: sunX, startY: surfaceY, density: mobile ? 0.48 : 1 });
   world.setRoots(mesh);
   drainX = mesh.tapAt(drainY);
   buildChant();
@@ -672,7 +757,8 @@ function frame(now) {
       mouseX: pointer.sx, mouseY: pointer.sy, mouseAmt: pointer.amt,
       hole, fullyOpen, rootColor, rootInk, dustColor, pulse, dimTo: heroBottom,
       waterY, waterVisible: nearWater,
-      dawn: smooth(clamp(palmGrowth * 1.1)),
+      bloom: smooth(clamp(palmGrowth * 1.1)),
+      cosmic: smooth(clamp((depthF - 0.03) / 0.3)) * 0.95, sunX, planet: planetAt,
       nameVisible: namePoints > 0 && (sy < vh * 1.4 || reform > 0),
       box, intro: introT * 1.3, melt, reform, drainX, drainY,
     });
@@ -751,6 +837,8 @@ Promise.race([nameFont, new Promise((r) => setTimeout(r, 1800))]).then(() => {
     document.fonts.load('400 200px Lalezar', 'كورتنا'),
     document.fonts.load('700 40px "Aref Ruqaa"', 'لافي'),
     document.fonts.load('700 40px Cairo', 'لافي'),
+    document.fonts.load('500 13px "IBM Plex Sans Arabic"', 'الدبران'),
+    document.fonts.load('400 11px "IBM Plex Mono"', 'Vega'),
   ]).catch(() => {}).then(() => {
     if (world) fossils();
     queueLayout();

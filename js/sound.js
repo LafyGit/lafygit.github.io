@@ -40,18 +40,19 @@ export function createSound(onPluck) {
     const comp = ctx.createDynamicsCompressor();
     // A short feedback delay stands in for a room.
     const delay = ctx.createDelay(1.2);
-    delay.delayTime.value = 0.31;
+    delay.delayTime.value = 0.46;
     const fb = ctx.createGain();
-    fb.gain.value = 0.34;
+    fb.gain.value = 0.5;
     const damp = ctx.createBiquadFilter();
     damp.type = 'lowpass';
-    damp.frequency.value = 2100;
+    damp.frequency.value = 1500;
     master.connect(comp).connect(ctx.destination);
     master.connect(delay);
     delay.connect(damp).connect(fb).connect(delay);
     fb.connect(comp);
     pluckBuf = karplus(BASE * 2, 2.6);
-    for (const [ratio, gain] of [[0.5, 0.05], [0.75, 0.024], [1, 0.016]]) {
+    // Low drone, then a high airy pad that swells very slowly.
+    for (const [ratio, gain] of [[0.5, 0.05], [0.75, 0.024], [1, 0.016], [2, 0.012], [3.004, 0.007], [4.5, 0.004]]) {
       const o = ctx.createOscillator();
       o.type = 'triangle';
       o.frequency.value = BASE * ratio;

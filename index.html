@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="ar" dir="rtl" class="plain">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Lafi AlMutlaq | لافي</title>
+<meta name="description" content="Lafi AlMutlaq makes apps people open every day: Jadhr, Kooratna, Footies, Lumiku and Bid Wars. Five on the App Store in 142 days, Arabic first.">
+<meta property="og:title" content="Lafi AlMutlaq | لافي">
+<meta property="og:description" content="Five apps on the App Store in 142 days. Dig through them, and play them on the way down.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://lafygit.github.io/">
+<meta property="og:image" content="https://lafygit.github.io/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#120b08">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23150c08'/%3E%3Cpath d='M32 10v20M32 30c-6 6-14 8-20 18M32 30c6 6 14 8 20 18M32 30v24' fill='none' stroke='%23f2a64e' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rakkas&family=Lalezar&family=Cairo:wght@500;700;900&family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&family=Gloock&family=Geologica:wght@300;400;500;700&family=Archivo:wdth,wght@125,800;125,900&family=Barlow+Condensed:ital,wght@1,800;1,900&family=Baloo+2:wght@600;800&family=Caveat:wght@600&family=Aref+Ruqaa:wght@700&display=swap">
+<link rel="stylesheet" href="style.css">
+<script>
+// Before first paint: pick the language so nothing flips.
+(function () {
+  var lang = 'ar';
+  try {
+    var saved = localStorage.getItem('lang');
+    if (saved === 'ar' || saved === 'en') lang = saved;
+    else if (!/^ar\b/i.test(navigator.language || '')) lang = 'en';
+  } catch (e) {}
+  var q = new URLSearchParams(location.search).get('lang');
+  if (q === 'ar' || q === 'en') lang = q;
+  var root = document.documentElement;
+  root.lang = lang;
+  root.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  // The page ships plain, so it stays readable with no JavaScript. Switch the earth on only when it can run,
+  // and fall back if the module never reports in.
+  var wantsMotion = !matchMedia('(prefers-reduced-motion: reduce)').matches && !/[?&]plain\b/.test(location.search);
+  var hasGL = false;
+  try { hasGL = !!document.createElement('canvas').getContext('webgl2'); } catch (e) {}
+  if (wantsMotion && hasGL) {
+    root.classList.remove('plain');
+    setTimeout(function () { if (!window.__earthUp) root.classList.add('plain'); }, 6000);
+  }
+})();
+</script>
+</head>
+<body>
+
+<!-- App worlds: fixed behind the earth canvas, seen only through the cracks it opens. -->
+<div class="stage st-k" data-stage="k" aria-hidden="true">
+  <div class="st-rays"></div><div class="st-dots"></div>
+  <i class="spark" style="left:12%;top:20%;--s:1.2;--d:-.4s"></i><i class="spark" style="left:83%;top:17%;--s:.8;--d:-1.3s"></i><i class="spark" style="left:21%;top:76%;--s:.7;--d:-2.1s"></i><i class="spark" style="left:88%;top:70%;--s:1.1;--d:-.9s"></i><i class="spark" style="left:52%;top:13%;--s:.6;--d:-1.8s"></i>
+  <svg class="pitch" viewBox="0 0 1000 620" preserveAspectRatio="xMidYMid slice"><g fill="none" stroke="#fff" stroke-width="3"><rect x="30" y="30" width="940" height="560"/><path d="M500 30V590"/><circle cx="500" cy="310" r="92"/><rect x="30" y="170" width="150" height="280"/><rect x="820" y="170" width="150" height="280"/><rect x="30" y="245" width="52" height="130"/><rect x="918" y="245" width="52" height="130"/></g></svg>
+  <div class="chant" id="chant" dir="ltr"></div>
+  <p class="chant-note"><span data-l="ar">انزل، وخلّ الجمهور يهتف</span><span data-l="en">Keep scrolling. Let them sing.</span></p>
+</div>
+
+<div class="stage st-b" data-stage="b" aria-hidden="true">
+  <div class="st-split"></div>
+  <div class="bw-cards"><div class="bwc bwc-g">?</div><div class="bwc bwc-p">$</div></div>
+  <div class="bw-title"><span class="g">BID WARS</span><span class="p">BID WARS</span></div>
+</div>
+
+<div class="stage st-l" data-stage="l" aria-hidden="true">
+  <div class="st-harl"></div><div class="st-vig"></div>
+  <div class="rack-title" id="rackTitle"></div>
+</div>
+
+<div class="stage st-f" data-stage="f" aria-hidden="true">
+  <div class="st-burst"></div><div class="st-tone"></div>
+  <div class="f-title"><span class="f-word">FOOTIES<i>.</i></span><span class="f-ribbon">DAILY FOOTBALL GAMES</span></div>
+  <div class="f-pow f-pow1">GOLAZO!</div>
+  <div class="f-pow f-pow2">FULL TIME!</div>
+</div>
+
+<div class="stage st-j" data-stage="j" aria-hidden="true">
+  <div class="garden" id="garden"></div>
+  <div class="j-title"><span>جَذر</span><i></i></div>
+</div>
+
+<canvas id="gl" aria-hidden="true"></canvas>
+
+<header class="chrome">
+  <a class="mark" href="#surface" aria-label="لافي"><span>لافي</span></a>
+  <div class="ctl">
+    <button class="pill" id="sound" type="button" aria-pressed="false">
+      <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path class="bar" d="M4 8v4"/><path class="bar" d="M8 5v10"/><path class="bar" d="M12 3v14"/><path class="bar" d="M16 7v6"/></svg>
+      <span id="soundLabel"><span data-l="ar">اسمع</span><span data-l="en">Listen</span></span>
+    </button>
+    <button class="pill" id="lang" type="button"><span data-l="ar">English</span><span data-l="en">العربية</span></button>
+  </div>
+</header>
+
+<nav class="core" id="core" aria-label="Sections"></nav>
+
+<main>
+
+<!-- ═══════════ SURFACE ═══════════ -->
+<section class="hero" id="surface" data-root="0.5" data-rich="0.8">
+  <div class="horizon" id="horizon" aria-hidden="true"><svg id="palm" viewBox="0 0 300 300" width="300" height="300"></svg></div>
+  <div class="hero-in">
+    <h1 class="name" id="name">لافي</h1>
+    <p class="who"><span data-l="ar">لافي المطلق</span><span data-l="en">Lafi AlMutlaq</span></p>
+    <p class="thesis">
+      <span data-l="ar">أصنع تطبيقات يفتحها الناس كل يوم.</span>
+      <span data-l="en">I make apps people open every day.</span>
+    </p>
+    <p class="sub">
+      <span data-l="ar">خمسة تطبيقات على App Store خلال ١٤٢ يومًا. من السعودية، والعربية عندي أولًا.</span>
+      <span data-l="en">Five on the App Store in 142 days. Made in Saudi Arabia, Arabic first.</span>
+    </p>
+    <ul class="hero-apps" aria-label="Apps">
+      <li><a href="#kooratna" aria-label="كورتنا Kooratna"><img src="assets/icons/kooratna.webp" alt="" width="64" height="64"></a></li>
+      <li><a href="#bidwars" aria-label="Bid Wars"><img src="assets/icons/bidwars.webp" alt="" width="64" height="64"></a></li>
+      <li><a href="#lumiku" aria-label="Lumiku"><img src="assets/icons/lumiku.webp" alt="" width="64" height="64"></a></li>
+      <li><a href="#footies" aria-label="Footies"><img src="assets/icons/footies.webp" alt="" width="64" height="64"></a></li>
+      <li><a href="#jadhr" aria-label="جذر Jadhr"><img src="assets/icons/jadhr.webp" alt="" width="64" height="64"></a></li>
+    </ul>
+    <a class="dig" href="#kooratna">
+      <span data-l="ar">احفر</span><span data-l="en">Dig</span>
+      <svg viewBox="0 0 16 44" width="16" height="44" aria-hidden="true"><path d="M8 1V40M2 34l6 7 6-7"/></svg>
+    </a>
+  </div>
+</section>
+
+<section class="gap gap-first" data-root="0.84" data-rich="1">
+  <div class="gap-in">
+    <p class="gap-big"><span data-l="ar">كل طبقة أقدم من اللي فوقها.</span><span data-l="en">Every layer is older than the one above it.</span></p>
+    <p class="gap-small"><span data-l="ar">الأعمق هو الأقدم، مثل الصخر تمامًا. والمصباح يتبع يدك، وفي الصخر حروف مدفونة.</span><span data-l="en">Deeper means older, the way rock works. The lamp follows your hand, and there are letters buried in here.</span></p>
+  </div>
+</section>
+
+<!-- ═══════════ KOORATNA ═══════════ -->
+<section class="world w-k" id="kooratna" data-world="k" data-root="0.97">
+  <div class="open"></div>
+  <div class="wrap two">
+    <div class="copy">
+      <p class="layer"><img src="assets/icons/kooratna.webp" alt="" width="44" height="44"><span data-l="ar">الطبقة ١ · ٣١ أكتوبر ٢٠٢٦</span><span data-l="en">Layer 1 · 31 Oct 2026</span></p>
+      <h2 class="k-h"><span data-l="ar">كل يوم صافرة جديدة.</span><span data-l="en">A new whistle every day.</span></h2>
+      <p class="lede"><span data-l="ar">الكرة السعودية في ألعاب يومية قصيرة. سبعة تحديات كل يوم، ولعبة جماعية للمجلس كله: فريقان، ست فئات، وحكم واحد يمسك الجوال.</span><span data-l="en">Saudi football as short daily games. Seven challenges every day, and a party board for the whole majlis: two teams, six categories, one referee holding the phone.</span></p>
+      <ul class="facts">
+        <li><b data-num="7">٧</b><span data-l="ar">تحديات يوميًا</span><span data-l="en">daily challenges</span></li>
+        <li><b data-num="6">٦</b><span data-l="ar">فئات في كل لوحة</span><span data-l="en">categories a board</span></li>
+        <li><b data-num="200-600">٢٠٠–٦٠٠</b><span data-l="ar">نقطة للسؤال، على شاشة التلفزيون</span><span data-l="en">points a question, up on the TV</span></li>
+      </ul>
+      <a class="store" href="https://apps.apple.com/sa/app/id6811613917" target="_blank" rel="noopener"><span data-l="ar">حمّل كورتنا من App Store</span><span data-l="en">Get Kooratna on the App Store</span></a>
+    </div>
+    <div class="posters" data-posters>
+      <img loading="lazy" src="assets/shots/kooratna-majlis.webp" alt="شاشة مجلس كورتنا" width="620" height="1347">
+      <img loading="lazy" src="assets/shots/kooratna-board.webp" alt="لوحة أسئلة مجلس كورتنا" width="620" height="1347">
+    </div>
+  </div>
+  <div class="tail"></div>
+</section>
+
+<section class="gap" data-root="0.84" data-rich="1" data-days="3">
+  <div class="gap-in">
+    <p class="deeper"><b><span data-l="ar"><i data-count="3">٣</i> أيام</span><span data-l="en"><i data-count="3">3</i> days</span></b> <span data-l="ar">أعمق</span><span data-l="en">deeper</span></p>
+    <p class="note"><span class="note-tag"><span data-l="ar">من دفتر الحفر</span><span data-l="en">Field note</span></span><span data-l="ar">حرف الكاف في شعار كورتنا كان يغيّر خطه على الآيفون فقط. الخط ما فيه رمز للواصل الخفي، فأضفت له رمزًا فارغًا، ورجع الحرف لمكانه.</span><span data-l="en">One letter in the Kooratna wordmark kept switching fonts, only on iPhones. The font had no glyph for an invisible joiner, so I added an empty one and the letter came home.</span></p>
+  </div>
+</section>
+
+<!-- ═══════════ BID WARS ═══════════ -->
+<section class="world w-b" id="bidwars" data-world="b" data-root="0.03">
+  <div class="open"></div>
+  <div class="wrap two">
+    <div class="copy">
+      <p class="layer"><img src="assets/icons/bidwars.webp" alt="" width="44" height="44"><span data-l="ar">الطبقة ٢ · ٢٨ أكتوبر ٢٠٢٦</span><span data-l="en">Layer 2 · 28 Oct 2026</span></p>
+      <h2 class="b-h"><span data-l="ar">لاعبان. جوال واحد.</span><span data-l="en">Two players. One phone.</span></h2>
+      <p class="lede"><span data-l="ar">لكل لاعب ٢٠ دولارًا وهمية، وقطع مخفية تطلع وحدة وحدة. اصرف كثير بدري، وتفلس لما يجي الشيء الحلو. وبعدها تتناقشون: مين جمع الأفضل؟</span><span data-l="en">Each player gets $20 of fake money, and hidden items come up one at a time. Spend too much early and you are broke when the good stuff shows up. Then you argue about who built the better collection.</span></p>
+      <a class="store" href="https://apps.apple.com/sa/app/id6816925758" target="_blank" rel="noopener"><span data-l="ar">حمّل Bid Wars من App Store</span><span data-l="en">Get Bid Wars on the App Store</span></a>
+    </div>
+    <div class="bw" id="bw">
+      <p class="play-tag"><span data-l="ar">جرّب جولة · ضد الموقع</span><span data-l="en">Play a round · against this page</span></p>
+      <div class="bw-scores">
+        <div class="bw-p bw-you"><span class="bw-name"><span data-l="ar">أنت</span><span data-l="en">You</span></span><b id="bwYou">$20</b></div>
+        <div class="bw-count" id="bwCount">1 / 5</div>
+        <div class="bw-p bw-rival"><span class="bw-name"><span data-l="ar">الخصم</span><span data-l="en">Rival</span></span><b id="bwRival">$20</b></div>
+      </div>
+      <div class="bw-item" id="bwItem"><span class="bw-cat">COMFORT FOOD</span><strong id="bwItemName">PIZZA</strong></div>
+      <div class="bw-bid"><span id="bwLeader"><span data-l="ar">السعر الحالي</span><span data-l="en">Current bid</span></span><b id="bwBid">$0</b></div>
+      <div class="bw-acts">
+        <button type="button" id="bwRaise" class="bw-btn bw-raise"></button>
+        <button type="button" id="bwPass" class="bw-btn bw-pass"><span data-l="ar">اترك له القطعة</span><span data-l="en">Pass</span></button>
+      </div>
+      <p class="bw-log" id="bwLog" aria-live="polite"></p>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="posters posters-row" data-posters>
+      <img loading="lazy" src="assets/shots/bidwars-home.webp" alt="Bid Wars: two players, one phone" width="620" height="1348">
+      <img loading="lazy" src="assets/shots/bidwars-outbid.webp" alt="Bid Wars: outbid them or back out" width="620" height="1348">
+      <img loading="lazy" src="assets/shots/bidwars-settle.webp" alt="Bid Wars: then settle who won" width="620" height="1348">
+    </div>
+  </div>
+  <div class="tail"></div>
+</section>
+
+<section class="gap" data-root="0.84" data-rich="1" data-days="15">
+  <div class="gap-in">
+    <p class="deeper"><b><span data-l="ar"><i data-count="15">١٥</i> يومًا</span><span data-l="en"><i data-count="15">15</i> days</span></b> <span data-l="ar">أعمق</span><span data-l="en">deeper</span></p>
+    <p class="note"><span class="note-tag"><span data-l="ar">من دفتر الحفر</span><span data-l="en">Field note</span></span><span data-l="ar">شلت كل أصوات Lumiku، وبنيتها من جديد من صوت واحد: طقّة قطعة على الطاولة. كل ضغطة في اللعبة اليوم هي نفس الطقّة.</span><span data-l="en">I took every sound out of Lumiku and rebuilt them from one: a tile clicking on the table. Every tap in the game today is that same click.</span></p>
+  </div>
+</section>
+
+<!-- ═══════════ LUMIKU ═══════════ -->
+<section class="world w-l" id="lumiku" data-world="l" data-root="0.97">
+  <div class="open"></div>
+  <div class="wrap two">
+    <div class="copy">
+      <p class="layer"><img src="assets/icons/lumiku.webp" alt="" width="44" height="44"><span data-l="ar">الطبقة ٣ · ١٣ أكتوبر ٢٠٢٦</span><span data-l="en">Layer 3 · 13 Oct 2026</span></p>
+      <h2 class="l-h"><span data-l="ar">اللعبة الكلاسيكية، مرسومة باليد.</span><span data-l="en">The classic tile game, redrawn by hand.</span></h2>
+      <p class="lede"><span data-l="ar">ابنِ سلاسل ومجموعات على طاولة مشتركة. افصل سلسلة، استعر قطعة، وأعد ترتيب كل شيء. أونلاين مع لاعبين أو ثلاثة أو أربعة، أو في غرفة خاصة مع أهلك.</span><span data-l="en">Build runs and groups on a shared table. Split a run, borrow a tile, rework anything already down. Online for 2, 3 or 4 players, or in a private room with your family.</span></p>
+      <a class="store" href="https://apps.apple.com/sa/app/id6818628873" target="_blank" rel="noopener"><span data-l="ar">حمّل Lumiku من App Store</span><span data-l="en">Get Lumiku on the App Store</span></a>
+    </div>
+    <div class="lk">
+      <p class="play-tag"><span data-l="ar">اسحب القطع: ثلاث متتالية بلون واحد، أو رقم واحد بثلاثة ألوان</span><span data-l="en">Drag the tiles: three in a row of one colour, or one number in three colours</span></p>
+      <div class="felt" id="felt"><canvas id="fw" aria-hidden="true"></canvas></div>
+      <p class="lk-log" id="lkLog" aria-live="polite"></p>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="posters posters-row" data-posters>
+      <img loading="lazy" src="assets/shots/lumiku-classic.webp" alt="Lumiku: the classic tile game, redrawn" width="620" height="1348">
+      <img loading="lazy" src="assets/shots/lumiku-table.webp" alt="Lumiku: rework the whole table" width="620" height="1348">
+      <img loading="lazy" src="assets/shots/lumiku-online.webp" alt="Lumiku: quick matches, live online" width="620" height="1348">
+    </div>
+  </div>
+  <div class="tail"></div>
+</section>
+
+<section class="gap gap-mid" data-root="0.84" data-rich="1" data-days="35">
+  <div class="gap-in">
+    <p class="deeper"><b><span data-l="ar"><i data-count="35">٣٥</i> يومًا</span><span data-l="en"><i data-count="35">35</i> days</span></b> <span data-l="ar">أعمق</span><span data-l="en">deeper</span></p>
+    <p class="note"><span class="note-tag"><span data-l="ar">من دفتر الحفر</span><span data-l="en">Field note</span></span><span data-l="ar">صافرة Footies كانت حلوة على اللابتوب ومزعجة على الجوال. لأن ٢١٤٠ هرتز تقع بالضبط على أقوى نقطة في سماعة الآيفون. صارت اليوم ١٧٠٠ هرتز.</span><span data-l="en">The whistle in Footies sounded fine on my laptop and harsh on a phone. At 2,140 Hz it sat right on the iPhone speaker's presence peak. It lives at 1,700 Hz now.</span></p>
+  </div>
+</section>
+
+<!-- ═══════════ FOOTIES ═══════════ -->
+<section class="world w-f" id="footies" data-world="f" data-root="0.03">
+  <div class="open"></div>
+  <div class="wrap two">
+    <div class="copy">
+      <p class="layer"><img src="assets/icons/footies.webp" alt="" width="44" height="44"><span data-l="ar">الطبقة ٤ · ٨ سبتمبر ٢٠٢٦</span><span data-l="en">Layer 4 · 8 Sep 2026</span></p>
+      <h2 class="f-h"><span data-l="ar">١٨ لعبة. مجموعة جديدة كل صباح.</span><span data-l="en">Eighteen games. A fresh set every morning.</span></h2>
+      <p class="lede"><span data-l="ar">تمرين كورة يومي مبني على آلاف اللاعبين والأندية الحقيقيين، وتقييم واحد يقول لك كم تفهم فعلًا.</span><span data-l="en">A daily football workout built on thousands of real players and clubs, with one rating that tells you how much ball knowledge you actually have.</span></p>
+      <ul class="facts">
+        <li><b data-num="18">١٨</b><span data-l="ar">لعبة</span><span data-l="en">games</span></li>
+        <li><b data-num="11">١١</b><span data-l="ar">تتجدد كل يوم</span><span data-l="en">reset every day</span></li>
+        <li><b data-num="1,600+">+١٦٠٠</b><span data-l="ar">اختبار آلي</span><span data-l="en">automated tests</span></li>
+      </ul>
+      <a class="store" href="https://apps.apple.com/sa/app/id6800394429" target="_blank" rel="noopener"><span data-l="ar">حمّل Footies من App Store</span><span data-l="en">Get Footies on the App Store</span></a>
+    </div>
+    <div class="hx">
+      <p class="play-tag"><span data-l="ar">اضغط أي خلية: اللاعب اللي يناسبها يسيطر على كل المتصل بها</span><span data-l="en">Tap a hex: the player who fits it claims everything connected</span></p>
+      <div class="hx-board" id="hexBoard"></div>
+      <div class="hx-bar"><span id="hexScore">0 PTS</span><span id="hexLabel"></span></div>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="posters posters-row" data-posters>
+      <img loading="lazy" src="assets/shots/footies-cover.webp" alt="Footies: daily football games" width="620" height="1348">
+      <img loading="lazy" src="assets/shots/footies-hex.webp" alt="Footies: head to head, hex by hex" width="620" height="1348">
+      <img loading="lazy" src="assets/shots/footies-fordle.webp" alt="Footies: five letters, one footballer" width="620" height="1348">
+    </div>
+  </div>
+  <div class="tail"></div>
+</section>
+
+<section class="gap gap-long" data-root="0.84" data-rich="1" data-days="89">
+  <div class="gap-in">
+    <p class="deeper"><b><span data-l="ar"><i data-count="89">٨٩</i> يومًا</span><span data-l="en"><i data-count="89">89</i> days</span></b> <span data-l="ar">أعمق</span><span data-l="en">deeper</span></p>
+    <p class="note"><span class="note-tag"><span data-l="ar">من دفتر الحفر</span><span data-l="en">Field note</span></span><span data-l="ar">كلمة اليوم في جذر كان يختارها hash، واحتمال تكرارها خلال ٩ أيام فوق ٥٠٪. اليوم كل جذر يرجع مرة واحدة في الدورة، وبين كل ظهورين ٢٥ يومًا على الأقل. قسته على ١٠ سنوات.</span><span data-l="en">Jadhr's daily word used to come from a hash, with a better than 50% chance of repeating within nine days. Now each root returns once a cycle, at least 25 days apart. I measured it over ten years of dates.</span></p>
+  </div>
+</section>
+
+<!-- ═══════════ JADHR ═══════════ -->
+<section class="world w-j" id="jadhr" data-world="j" data-root="0.97">
+  <div class="open"></div>
+  <div class="wrap jadhr">
+    <div class="copy copy-c">
+      <p class="layer"><img src="assets/icons/jadhr.webp" alt="" width="44" height="44"><span data-l="ar">الطبقة ٥ · ١١ يونيو ٢٠٢٦ · هنا بدأ كل شيء</span><span data-l="en">Layer 5 · 11 Jun 2026 · where it started</span></p>
+      <h2 class="j-h"><span data-l="ar">جذر واحد، عائلة من الكلمات.</span><span data-l="en">One root, a family of words.</span></h2>
+      <p class="lede"><span data-l="ar">الكلمة العربية تنمو من جذر من ثلاثة أحرف. جذر يعرض لك كلمة، وأنت تستخرج جذرها، فتظهر العائلة كلها. وصل للمركز الأول في فئة الكلمات في السعودية.</span><span data-l="en">Arabic words grow from roots of three letters. Jadhr shows you a word and you dig out its root, then the whole family appears. It reached #1 in the Word category in Saudi Arabia.</span></p>
+    </div>
+
+    <div class="jp" id="jp">
+      <p class="play-tag"><span data-l="ar">استخرج الجذر: اضغط حروفه بالترتيب</span><span data-l="en">Dig out the root: tap its letters in order</span></p>
+      <p class="jp-word" id="jpWord" lang="ar"></p>
+      <p class="jp-gloss" id="jpGloss" data-l="en"></p>
+      <div class="jp-tiles" id="jpTiles" dir="rtl" lang="ar"></div>
+      <div class="jp-tree" id="jpTree" dir="rtl" lang="ar"></div>
+      <div class="jp-slots" id="jpSlots" dir="rtl" lang="ar"></div>
+      <p class="jp-msg" id="jpMsg" aria-live="polite"></p>
+      <button type="button" class="jp-next" id="jpNext" hidden><span data-l="ar">كلمة ثانية</span><span data-l="en">Another word</span></button>
+    </div>
+
+    <div class="j-foot">
+      <ul class="facts">
+        <li><b data-num="4.9">٤٫٩</b><span data-l="ar">من ٥ في السعودية</span><span data-l="en">out of 5 in Saudi Arabia</span></li>
+        <li><b data-num="2,200+">+٢٢٠٠</b><span data-l="ar">اختبار آلي</span><span data-l="en">automated tests</span></li>
+      </ul>
+      <a class="store" href="https://apps.apple.com/sa/app/id6778617964" target="_blank" rel="noopener"><span data-l="ar">حمّل جذر من App Store</span><span data-l="en">Get Jadhr on the App Store</span></a>
+    </div>
+    <div class="posters posters-row" data-posters>
+      <img loading="lazy" src="assets/shots/jadhr-home.webp" alt="جذر: جذر واحد، عائلة من الكلمات" width="620" height="1341">
+      <img loading="lazy" src="assets/shots/jadhr-play.webp" alt="جذر: خمّن الجذر في ثلاث محاولات" width="620" height="1341">
+      <img loading="lazy" src="assets/shots/jadhr-family.webp" alt="جذر: شاهد العائلة تتفرع" width="620" height="1341">
+    </div>
+  </div>
+  <div class="tail"></div>
+</section>
+
+<section class="gap gap-mid" data-root="0.84" data-rich="1">
+  <div class="gap-in">
+    <p class="gap-big"><span data-l="ar">تحت جذر، ما انتهى الحفر.</span><span data-l="en">Below Jadhr, the digging keeps going.</span></p>
+    <p class="gap-small"><span data-l="ar">الطبقات اللي فوق منشورة. اللي تحت لسه تنمو، أو دفنتها وأنا أتعلم.</span><span data-l="en">Everything above is shipped. What is down here is still growing, or got buried while I was learning.</span></p>
+  </div>
+</section>
+
+<!-- ═══════════ SEEDS ═══════════ -->
+<section class="seeds" id="seeds" data-root="0.97" data-rich="0.4">
+  <div class="wrap">
+    <p class="kicker"><span data-l="ar">بذور</span><span data-l="en">Seeds</span></p>
+    <h2 class="site-h"><span data-l="ar">لسه تحت الأرض.</span><span data-l="en">Still underground.</span></h2>
+
+    <article class="sheet" id="sheet">
+      <canvas id="crumbs" aria-hidden="true"></canvas>
+      <div class="sheet-copy">
+        <img class="sheet-mark" src="assets/icons/crumbless-hand.svg" alt="" width="104" height="104" loading="lazy">
+        <h3>Crumbless</h3>
+        <p><span data-l="ar">وجّه الجوال على الباركود، واعرف هل يناسبك. ماسح لملصقات الطعام لمرضى السيلياك والحساسية، بحكم مستقل لكل حالة. يقرأ العربية والإنجليزية والفرنسية، وبياناتك الصحية ما تطلع من جوالك.</span><span data-l="en">Point your phone at a barcode and see if it is safe for you. A food-label scanner for coeliacs and allergies, with a separate verdict for each need. It reads Arabic, English and French, and your health data never leaves your phone.</span></p>
+        <p class="sheet-status"><span data-l="ar">على TestFlight</span><span data-l="en">On TestFlight</span></p>
+      </div>
+      <div class="scan">
+        <div class="scan-bars" aria-hidden="true"><i class="scan-beam"></i></div>
+        <p class="scan-prod"><span data-l="ar">خبز بالسمسم</span><span data-l="en">Sesame bread</span></p>
+        <div class="scan-needs" role="group" aria-label="Your need" id="scanNeeds"></div>
+        <p class="scan-verdict" id="scanVerdict" aria-live="polite"></p>
+      </div>
+    </article>
+
+    <div class="posters posters-row posters-seed" data-posters>
+      <img loading="lazy" src="assets/shots/crumbless-home.webp" alt="Crumbless home screen" width="620" height="1348">
+      <img loading="lazy" src="assets/shots/crumbless-verdict.webp" alt="Crumbless scan verdict" width="620" height="1348">
+      <img loading="lazy" src="assets/shots/crumbless-book.webp" alt="Crumbless recipe book" width="620" height="1348">
+    </div>
+
+    <article class="pulse" id="pulse">
+      <svg class="pulse-line" viewBox="0 0 1200 240" preserveAspectRatio="none" aria-hidden="true"><path d="M0 120 H250 l18 -14 l14 14 h34 l14 18 l22 -104 l26 150 l18 -64 h36 l24 -20 l26 20 H720 l18 -14 l14 14 h34 l14 18 l22 -104 l26 150 l18 -64 h36 l24 -20 l26 20 H1200"/></svg>
+      <div class="pulse-copy">
+        <img src="assets/icons/remly.webp" alt="" width="64" height="64" loading="lazy">
+        <div>
+          <h3><span data-l="ar">نبض</span><span data-l="en">Remly</span></h3>
+          <p><span data-l="ar">ذاكرة ثانية خاصة لعلاقاتك. افتحه قبل ما تقابل شخص، وتتذكر وش صار في حياته وش وعدته. جملة واحدة بصوتك تكفي، وما يرسل شيء من نفسه.</span><span data-l="en">A private second memory for your relationships. Open it before you see someone and you remember what is happening in their life and what you promised. One spoken sentence does the work, and it never sends anything on its own.</span></p>
+          <p class="pulse-eg" aria-hidden="true"><span data-l="ar">سعود ينتقل لجدة في أكتوبر · وعدته برقم الوسيط</span><span data-l="en">Saud moves to Jeddah in October · you promised him the broker's number</span></p>
+        </div>
+      </div>
+    </article>
+
+    <div class="sprouts">
+      <article class="sprout"><img src="assets/icons/pocketheist.webp" alt="" width="52" height="52" loading="lazy"><h3>Pocket Heist</h3><p><span data-l="ar">لعبة تسلل صغيرة بمنظور إيزومتري. مو لص بالضبط، ضيف.</span><span data-l="en">A small isometric stealth caper. Not a thief, exactly. A guest.</span></p></article>
+      <article class="sprout"><h3>Garage 60</h3><p><span data-l="ar">لعبة سيارات يومية بـ١٥٠ سيارة، ترفض تسأل سؤال ما عنده مصدر موثّق.</span><span data-l="en">A daily car game with 150 cars. It refuses to ask a question it cannot source.</span></p></article>
+      <article class="sprout"><h3>Approva</h3><p><span data-l="ar">اعتماد الأعمال الإبداعية بالعربي والإنجليزي: رابط مراجعة، تعليقات على التصميم، وقفل الموافقة.</span><span data-l="en">Creative approvals in Arabic and English: a review link, comments pinned on the work, and a locked sign-off.</span></p></article>
+      <article class="sprout"><h3>Touchline</h3><p><span data-l="ar">تحليل فيديو كورة على جهازك: يتبع لاعب واحد في المباراة، وكل رقم يرجع للمقطع نفسه.</span><span data-l="en">Football video analysis on your own machine. It follows one player through a match, and every number links back to the footage.</span></p></article>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════ FOSSILS ═══════════ -->
+<section class="fossils" id="fossils" data-root="0.97" data-rich="0.8">
+  <div class="wrap">
+    <p class="kicker"><span data-l="ar">حفريات</span><span data-l="en">Fossils</span></p>
+    <h2 class="site-h"><span data-l="ar">أشياء بنيتها ودفنتها.</span><span data-l="en">Things I built and buried.</span></h2>
+    <p class="site-p"><span data-l="ar">كل واحد منها علّمني شيء.</span><span data-l="en">Each one taught me something.</span></p>
+    <ul class="fossil-list">
+      <li><b>BLACKBOX</b><span data-l="ar">لعبة استنتاج يومية. لكل لغز إجابة واحدة مثبتة رياضيًا.</span><span data-l="en">A daily deduction game. Every puzzle provably has one answer.</span></li>
+      <li><b><span data-l="ar">وين أجلس؟</span><span data-l="en">Wain Ajlis</span></b><span data-l="ar">لعبة قصصية عن آداب المجلس، بموسيقى مقامات تتولد لحظيًا.</span><span data-l="en">A story game about majlis manners, with maqam music generated live.</span></li>
+      <li><b><span data-l="ar">رمز اليوم</span><span data-l="en">Ramz</span></b><span data-l="ar">لغز عربي يومي من ست فئات، بعد ما تقاعدت شيفرته الأولى.</span><span data-l="en">A daily Arabic puzzle in six categories, rebuilt after its first cipher retired.</span></li>
+      <li><b>Forgemate</b><span data-l="ar">شطرنج يندمج مع ألعاب roguelike.</span><span data-l="en">Chess fused with a roguelike.</span></li>
+      <li><b>The Fourth Ledger</b><span data-l="ar">لغز في مكتب استقبال فندق، ليلة من سنة ١٩٩٧.</span><span data-l="en">A hotel night-desk mystery, set in 1997.</span></li>
+      <li><b>The Docket</b><span data-l="ar">قصة تحقيق تفاعلية.</span><span data-l="en">An interactive detective story.</span></li>
+      <li><b>Perihelion</b><span data-l="ar">لعبة ويب: مرّ قرب النجوم، ولا توقف السقوط.</span><span data-l="en">A web game. Skim the stars, never stop falling.</span></li>
+      <li><b>Yabaduba</b><span data-l="ar">تطبيق Mac لإدارة فريق من وكلاء البرمجة بالصوت.</span><span data-l="en">A native Mac app for running a team of coding agents by voice.</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════ CREW ═══════════ -->
+<section class="crew" id="crew" data-root="0.03" data-rich="0.5">
+  <div class="wrap">
+    <p class="kicker"><span data-l="ar">الطاقم</span><span data-l="en">The crew</span></p>
+    <h2 class="site-h"><span data-l="ar">أشتغل لوحدي، ومعي طاقم.</span><span data-l="en">I work alone, with a crew.</span></h2>
+    <p class="site-p"><span data-l="ar">لكل مشروع مساعد ذكاء اصطناعي مبني على Claude Code، يراقب الكود والبناء والاختبارات والخادم وحالة الإصدار، ويرفع لي التقرير. أسماؤهم من طاقم معروف، ومهامهم على قدّ شخصياتهم.</span><span data-l="en">Each project has an AI first mate built on Claude Code. It watches the code, builds, tests, backend and release state, and reports back to me. The names come from a certain famous crew, and the jobs suit them.</span></p>
+    <ul class="crew-list">
+      <li><code>luffy</code><span>Footies</span><em><span data-l="ar">القبطان يمسك اللعبة الكبيرة</span><span data-l="en">The captain takes the big game</span></em></li>
+      <li><code>zoro</code><span>كورتنا</span><em><span data-l="ar">يضيع، ويلقى المرمى</span><span data-l="en">Gets lost, still finds the goal</span></em></li>
+      <li><code>robin</code><span>جذر</span><em><span data-l="ar">تقرأ اللغات القديمة</span><span data-l="en">She reads ancient languages</span></em></li>
+      <li><code>nami</code><span>Lumiku</span><em><span data-l="ar">تحسب كل عملة</span><span data-l="en">Counts every coin</span></em></li>
+      <li><code>usopp</code><span>Bid Wars</span><em><span data-l="ar">أشطر واحد في البلف</span><span data-l="en">Best bluffer on the ship</span></em></li>
+      <li><code>sanji</code><span>Crumbless</span><em><span data-l="ar">الطبّاخ في مطبخه</span><span data-l="en">The cook in his kitchen</span></em></li>
+      <li><code>chopper</code><span>Remly</span><em><span data-l="ar">الطبيب يهتم بالناس</span><span data-l="en">The doctor looks after people</span></em></li>
+      <li><code>franky</code><span>Garage 60</span><em><span data-l="ar">صانع السفن معه السيارات</span><span data-l="en">The shipwright gets the cars</span></em></li>
+    </ul>
+    <p class="note note-inline"><span class="note-tag"><span data-l="ar">من دفتر الحفر</span><span data-l="en">Field note</span></span><span data-l="ar">خمسة نوادي في Footies كانت تطلع سوداء. السبب حرف كيريلّي واحد مختبئ داخل كود اللون. لهذا عندي طاقم.</span><span data-l="en">Five clubs in Footies were rendering black. The cause was one Cyrillic letter hiding inside a hex colour. This is why I keep a crew.</span></p>
+  </div>
+</section>
+
+<!-- ═══════════ WATER ═══════════ -->
+<section class="water" id="water" data-root="0.5" data-rich="1.2">
+  <div class="water-rock">
+    <div class="wrap">
+      <p class="gap-big"><span data-l="ar">كل جذر يدوّر على ماء.</span><span data-l="en">Every root is looking for water.</span></p>
+    </div>
+  </div>
+  <div class="water-in" id="waterIn">
+    <div class="reflect-room" aria-hidden="true"></div>
+    <div class="wrap">
+      <h2 class="water-h"><span data-l="ar">عندك مشروع؟</span><span data-l="en">Got a project?</span></h2>
+      <p class="site-p"><span data-l="ar">أبني مواقع وتطبيقات سريعة، وتشتغل صح من اليمين لليسار. سعر ثابت، ومسودة على رابط حقيقي قبل ما تدفع الباقي. أرد خلال ساعات.</span><span data-l="en">I build fast sites and apps that get right-to-left right. Fixed price, and a draft on a real link before you pay the rest. I reply within hours.</span></p>
+      <ul class="plans">
+        <li><span><span data-l="ar">صفحة هبوط</span><span data-l="en">Landing page</span></span><b><span data-l="ar">٧٥٠ ر.س</span><span data-l="en">750 SAR</span></b><em><span data-l="ar">خلال ٤٨ ساعة</span><span data-l="en">In 48 hours</span></em></li>
+        <li><span><span data-l="ar">موقع نشاط تجاري</span><span data-l="en">Business website</span></span><b><span data-l="ar">١٬٩٠٠ ر.س</span><span data-l="en">1,900 SAR</span></b><em><span data-l="ar">خلال ٥ أيام</span><span data-l="en">In 5 days</span></em></li>
+        <li><span><span data-l="ar">تطبيق iPhone</span><span data-l="en">iPhone app</span></span><b><span data-l="ar">من ٧٬٥٠٠ ر.س</span><span data-l="en">From 7,500 SAR</span></b><em><span data-l="ar">من ٣ أسابيع</span><span data-l="en">From 3 weeks</span></em></li>
+      </ul>
+      <div class="cta">
+        <a class="btn btn-w" href="https://wa.me/966508038999" target="_blank" rel="noopener"><span data-l="ar">راسلني على واتساب</span><span data-l="en">Message me on WhatsApp</span></a>
+        <a class="btn" href="https://lafygit.github.io/studio/" target="_blank" rel="noopener"><span data-l="ar">صفحة الاستوديو</span><span data-l="en">See the studio page</span></a>
+      </div>
+      <p class="mail"><span class="mail-addr" dir="ltr">lafyalmutlaq@gmail.com</span>
+        <button type="button" class="copy-btn" id="copyMail"><span data-l="ar">انسخ</span><span data-l="en">Copy</span></button>
+      </p>
+      <p class="links" dir="ltr">
+        <a href="https://apps.apple.com/sa/developer/lafi-almutlaq/id1896577159" target="_blank" rel="noopener">App Store</a>
+        <a href="https://github.com/LafyGit" target="_blank" rel="noopener">GitHub</a>
+      </p>
+      <button type="button" class="ascend" id="ascend">
+        <svg viewBox="0 0 16 44" width="14" height="38" aria-hidden="true"><path d="M8 43V4M2 10l6-7 6 7"/></svg>
+        <span data-l="ar">اسقِ النخلة وارجع للسطح</span><span data-l="en">Water the palm, back to the surface</span>
+      </button>
+      <p class="fine">© 2026 <span data-l="ar">لافي المطلق</span><span data-l="en">Lafi AlMutlaq</span></p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

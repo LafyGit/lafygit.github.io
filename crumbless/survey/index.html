@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Help shape Crumbless, a gluten-free and allergy app for Saudi Arabia. 4 minutes, anonymous, Arabic or English.">
+<meta name="description" content="Help shape Crumbless, a food app for every diet: diabetes, allergies, coeliac, organic, vegan and more. 4 minutes, anonymous, Arabic or English.">
 <title>Crumbless Survey</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -202,14 +202,14 @@ const FORM = { action: '', entries: {} };
 const T = {
   en: {
     brand: 'Crumbless', langBtn: 'العربية', kicker: 'A 4-minute favour',
-    h1: 'Help us build the gluten-free app Saudi Arabia actually needs',
-    lede: 'Crumbless is a free app, still being built, for people who avoid gluten or live with a food allergy. Before we build more, we want to hear from you: what is hard, what you use today, and what would help.',
+    h1: 'Help us build a food app that fits every diet',
+    lede: 'Crumbless is a free app, still being built, for anyone who reads labels for a reason: diabetes, food allergies, coeliac disease, organic eating, vegan or vegetarian diets, and more. Before we build more, we want to hear from you: what is hard, what you use today, and what would help.',
     p1: '4 minutes', p2: 'Anonymous', p3: 'Arabic or English', start: 'Start the survey',
-    whyKick: 'Why we are asking', whyH: 'More people need a careful label than you might think',
-    selfNote: 'The two Saudi allergy figures are what people reported in surveys, not allergy tests, so the true share is likely lower. They still show how many households read labels with worry.',
-    takeaway: 'Many people who need a careful label never got a diagnosis, and wheat hides in everyday local food. Your answers decide which of these problems Crumbless solves first.',
-    hidKick: 'From the app’s Learn notes', hidH: 'Where gluten hides in food we eat here',
-    hidNote: 'Packs change. Crumbless is not medical advice, so read the label every time.',
+    whyKick: 'Why we are asking', whyH: 'Far more people read labels for a reason than you might think',
+    selfNote: 'The Saudi allergy and organic figures come from surveys of what people reported, not tests, so treat them as a sense of scale, not exact counts.',
+    takeaway: 'Diabetes, allergies, coeliac disease and organic eating each send people to the label, often for the same packs. Your answers decide which of these Crumbless serves first.',
+    hidKick: 'From the app’s Learn notes', hidH: 'Label myths we hear all the time',
+    hidNote: 'Packs change. Crumbless is not medical advice, so read the label every time and speak with your clinician.',
     survKick: 'The survey', survH: 'Sixteen quick questions',
     preview: 'Preview: this copy of the survey is not connected yet, so your answers are not sent anywhere.',
     of: (a, b) => a + ' of ' + b, back: 'Back', next: 'Next', send: 'Send my answers', skip: 'Skip',
@@ -220,7 +220,7 @@ const T = {
     emailBad: 'That email looks incomplete.', consentNeed: 'Tick the box to send your email, or clear the email to stay anonymous.',
     sending: 'Sending…', sendFail: 'Your answers could not be sent. Check your connection and tap Send again.',
     doneH: 'Thank you', doneP: 'Your answers will help decide what Crumbless builds first.', donePreview: 'This was a preview, so nothing was sent.',
-    noneH: 'Thanks for stopping by', noneP: 'This survey is for people who avoid gluten or a food allergen, or cook for someone who does. If you know someone like that, please send them the link.',
+    noneH: 'Thanks for stopping by', noneP: 'This survey is for people who choose food for a health, allergy or lifestyle reason, or cook for someone who does. If you know someone like that, please send them the link.',
     minorH: 'Thanks for your interest', minorP: 'This survey asks about health, so it is for adults only. Ask a parent to fill it in for your family.',
     again: 'Start over',
     privH: 'What happens to your answers',
@@ -232,14 +232,14 @@ const T = {
   },
   ar: {
     brand: 'كرمبلس', langBtn: 'English', kicker: 'خدمة تاخذ ٤ دقايق',
-    h1: 'ساعدنا نبني تطبيق الأكل الخالي من الجلوتين اللي نحتاجه فعلًا في السعودية',
-    lede: 'كرمبلس تطبيق مجاني لسا نبنيه، للي يتجنبون الجلوتين أو عندهم حساسية أكل. قبل ما نبني أكثر نبي نسمع منك: وش الصعب، وش تستخدم اليوم، ووش اللي يفيدك.',
+    h1: 'ساعدنا نبني تطبيق أكل يناسب كل نظام غذائي',
+    lede: 'كرمبلس تطبيق مجاني لسا نبنيه، لكل واحد يقرا الملصق لسبب: السكري، حساسية الأكل، السيلياك، الأكل العضوي، النباتي، وغيرها. قبل ما نبني أكثر نبي نسمع منك: وش الصعب، وش تستخدم اليوم، ووش اللي يفيدك.',
     p1: '٤ دقايق', p2: 'بدون اسم', p3: 'عربي أو إنجليزي', start: 'ابدأ الاستبيان',
-    whyKick: 'ليش نسأل', whyH: 'الناس اللي يحتاجون يقرون الملصق بحرص أكثر مما تتوقع',
-    selfNote: 'رقمي الحساسية في السعودية من استبيانات قال فيها الناس عن نفسهم، مو من فحوصات، فالنسبة الحقيقية غالبًا أقل. بس توضح كم بيت يقرا الملصق وهو قلقان.',
-    takeaway: 'ناس كثير يحتاجون يقرون الملصق بحرص وما انشخصوا أبدًا، والقمح مخبّى في أكلنا اليومي. إجاباتك تحدد أي مشكلة يحلها كرمبلس أول.',
-    hidKick: 'من ملاحظات «تعلّم» في التطبيق', hidH: 'وين يتخبّى الجلوتين في أكلنا',
-    hidNote: 'العبوات تتغير. كرمبلس مو نصيحة طبية، فاقرأ الملصق كل مرة.',
+    whyKick: 'ليش نسأل', whyH: 'اللي يقرون الملصق لسبب أكثر بكثير مما تتوقع',
+    selfNote: 'أرقام الحساسية والأكل العضوي في السعودية من استبيانات قال فيها الناس عن نفسهم، مو من فحوصات، فخذها كمؤشر للحجم مو كعدد دقيق.',
+    takeaway: 'السكري والحساسية والسيلياك والأكل العضوي كلها توديك للملصق، وغالبًا لنفس العبوات. إجاباتك تحدد مين يخدم كرمبلس أول.',
+    hidKick: 'من ملاحظات «تعلّم» في التطبيق', hidH: 'خرافات عن الملصقات نسمعها كثير',
+    hidNote: 'العبوات تتغير. كرمبلس مو نصيحة طبية، فاقرأ الملصق كل مرة واستشر طبيبك.',
     survKick: 'الاستبيان', survH: 'ستة عشر سؤال سريع',
     preview: 'معاينة: هالنسخة من الاستبيان لسا مو مربوطة، فإجاباتك ما تنرسل لأي مكان.',
     of: (a, b) => a + ' من ' + b, back: 'رجوع', next: 'التالي', send: 'أرسل إجاباتي', skip: 'تخطَّ',
@@ -250,7 +250,7 @@ const T = {
     emailBad: 'الإيميل شكله ناقص.', consentNeed: 'علّم على المربع عشان ترسل إيميلك، أو امسح الإيميل وتبقى بدون اسم.',
     sending: 'جاري الإرسال…', sendFail: 'ما قدرنا نرسل إجاباتك. تأكد من الاتصال واضغط أرسل مرة ثانية.',
     doneH: 'شكرًا لك', doneP: 'إجاباتك بتساعدنا نقرر وش يبني كرمبلس أول.', donePreview: 'هذي كانت معاينة، فما انرسل شي.',
-    noneH: 'شكرًا إنك مريت', noneP: 'الاستبيان للي يتجنبون الجلوتين أو أكل يتحسسون منه، أو يطبخون لأحد كذا. لو تعرف أحد، أرسل له الرابط.',
+    noneH: 'شكرًا إنك مريت', noneP: 'الاستبيان للي يختارون أكلهم لسبب صحي أو حساسية أو أسلوب حياة، أو يطبخون لأحد كذا. لو تعرف أحد، أرسل له الرابط.',
     minorH: 'شكرًا على اهتمامك', minorP: 'الاستبيان يسأل عن الصحة، فهو للكبار بس. خلّ أحد والديك يعبيه عن عيلتكم.',
     again: 'ابدأ من جديد',
     privH: 'وش يصير بإجاباتك',
@@ -263,46 +263,47 @@ const T = {
 };
 
 const FACTS = [
-  { n: 1.4, d: 1, en: 'of people worldwide test positive for coeliac antibodies. 0.7% are confirmed by biopsy.', ar: 'من الناس في العالم تطلع عندهم أجسام مضادة للسيلياك، و٠٫٧٪ يتأكد عندهم بالخزعة.',
-    src: 'Singh et al., Clinical Gastroenterology and Hepatology, 2018 (275,818 people)', srcAr: 'سينغ وزملاؤه، Clinical Gastroenterology and Hepatology، ‏٢٠١٨', url: 'https://pubmed.ncbi.nlm.nih.gov/29551598/' },
-  { n: 1.6, d: 1, en: 'of people in Middle East studies tested positive for coeliac antibodies, in the same global review.', ar: 'من الناس في دراسات الشرق الأوسط طلعت عندهم أجسام مضادة للسيلياك، في نفس المراجعة العالمية.',
-    src: 'Singh et al., 2018, Table 1', srcAr: 'سينغ وزملاؤه، ٢٠١٨، الجدول ١', url: 'https://pubmed.ncbi.nlm.nih.gov/29551598/' },
-  { n: 75, d: 0, en: 'of people found with coeliac disease in a Norwegian screening did not know they had it.', ar: 'من اللي اكتُشف عندهم السيلياك في فحص جماعي بالنرويج ما كانوا يدرون.',
-    src: 'Tromsø screening study, Scientific Reports (via Beyond Celiac)', srcAr: 'دراسة ترومسو، Scientific Reports (عن Beyond Celiac)', url: 'https://www.beyondceliac.org/research-news/norwegian-study-three-quarters-undiagnosed/' },
+  { n: 10.5, d: 1, en: 'of adults worldwide live with diabetes, and almost half of them don’t know it.', ar: 'من البالغين في العالم عندهم سكري، وتقريبًا نصهم ما يدرون.',
+    src: 'IDF Diabetes Atlas, 2021', srcAr: 'أطلس السكري، الاتحاد الدولي للسكري، ٢٠٢١', url: 'https://idf.org/about-diabetes/diabetes-facts-figures/' },
   { n: 19.7, d: 1, en: 'of Saudi adults said they have a food allergy (phone survey of 4,709 adults). Egg, shellfish and peanuts led.', ar: 'من البالغين في السعودية قالوا إن عندهم حساسية أكل (استبيان هاتفي لـ٤٬٧٠٩ شخص). أكثرها البيض والمأكولات البحرية والفول السوداني.',
     src: 'Althumiri et al., Int J Environ Res Public Health, 2021', srcAr: 'الثميري وزملاؤه، Int J Environ Res Public Health، ‏٢٠٢١', url: 'https://www.mdpi.com/1660-4601/18/1/347' },
   { n: 15.2, d: 1, en: 'of Saudi parents reported a food allergy in their child (2,130 parents). Egg, tree nuts, peanuts, milk and sesame led.', ar: 'من الأهالي في السعودية قالوا إن عند طفلهم حساسية أكل (٢٬١٣٠ ولي أمر). أكثرها البيض والمكسرات والفول السوداني والحليب والسمسم.',
     src: 'Khojah et al., Nutrients, 2024', srcAr: 'خوجة وزملاؤه، Nutrients، ‏٢٠٢٤', url: 'https://www.mdpi.com/2072-6643/16/16/2693' },
-  { n: 12, d: 0, en: 'of people with type 1 diabetes in Saudi studies had biopsy-proven coeliac disease.', ar: 'من المصابين بالسكري من النوع الأول في الدراسات السعودية عندهم سيلياك مؤكد بالخزعة.',
+  { n: 69, d: 0, en: 'of 1,200 shoppers in Madinah said organic food is hard to find. Price was the main barrier.', ar: 'من ١٬٢٠٠ متسوق في المدينة قالوا إن الأكل العضوي صعب تلقاه، والسعر أكبر عائق.',
+    src: 'Jalloun, Afr J Food Agric Nutr Dev, 2022', srcAr: 'جلّون، Afr J Food Agric Nutr Dev، ‏٢٠٢٢', url: 'https://ageconsearch.umn.edu/record/333998' },
+  { n: 1.4, d: 1, en: 'of people worldwide test positive for coeliac antibodies. 0.7% are confirmed by biopsy.', ar: 'من الناس في العالم تطلع عندهم أجسام مضادة للسيلياك، و٠٫٧٪ يتأكد عندهم بالخزعة.',
+    src: 'Singh et al., Clinical Gastroenterology and Hepatology, 2018 (275,818 people)', srcAr: 'سينغ وزملاؤه، Clinical Gastroenterology and Hepatology، ‏٢٠١٨', url: 'https://pubmed.ncbi.nlm.nih.gov/29551598/' },
+  { n: 12, d: 0, en: 'of people with type 1 diabetes in Saudi studies also had coeliac disease, confirmed by biopsy. Many people manage more than one need.', ar: 'من المصابين بالسكري من النوع الأول في الدراسات السعودية عندهم سيلياك بعد، مؤكد بالخزعة. ناس كثير عندهم أكثر من احتياج.',
     src: 'Safi, Saudi Medical Journal, 2019 (meta-analysis of 8 studies)', srcAr: 'صافي، المجلة الطبية السعودية، ‏٢٠١٩ (تحليل ٨ دراسات)', url: 'https://smj.org.sa/content/40/7/647' },
 ];
 
 const HIDDEN = [
-  { en: 'Jareesh, harees, freekeh, bulgur', ar: 'الجريش والهريس والفريكة والبرغل', why: 'All wheat: whole, cracked or green.', whyAr: 'كلها قمح: حب كامل أو مجروش أو أخضر.' },
-  { en: 'Soy sauce', ar: 'صوص الصويا', why: 'Most brands are brewed with wheat.', whyAr: 'أغلب الأنواع مخمّرة مع قمح.' },
-  { en: 'Stock cubes and instant soups', ar: 'مكعبات المرقة والشوربة الفورية', why: 'Wheat flour can be the thickener.', whyAr: 'دقيق القمح ممكن يكون هو المكثّف.' },
-  { en: 'Spice blends', ar: 'خلطات البهارات', why: 'Ready mixes can carry flour as a filler.', whyAr: 'الخلطات الجاهزة ممكن فيها دقيق كمادة مالئة.' },
-  { en: 'Processed meat', ar: 'اللحوم المصنّعة', why: 'Sausages and kofta mixes can use breadcrumbs.', whyAr: 'النقانق وخلطات الكفتة ممكن فيها فتات خبز.' },
-  { en: 'Imitation crab sticks', ar: 'أصابع الكراب المقلّد', why: 'Often bound with wheat starch.', whyAr: 'غالبًا مربوطة بنشا القمح.' },
+  { en: '“Sugar-free means carb-free.”', ar: '«خالي من السكر يعني بدون كارب.»', why: 'Flour is carbohydrate. Sugar-free biscuits still move blood sugar.', whyAr: 'الدقيق كربوهيدرات. البسكويت الخالي من السكر لا زال يرفع السكر.' },
+  { en: '“Lactose-free is safe for a milk allergy.”', ar: '«الخالي من اللاكتوز آمن لحساسية الحليب.»', why: 'Lactose-free milk still has milk protein, and the allergy reacts to the protein.', whyAr: 'حليب الخالي من اللاكتوز فيه بروتين حليب، والحساسية من البروتين.' },
+  { en: '“Organic means pesticide-free.”', ar: '«عضوي يعني بدون مبيدات.»', why: 'Organic farms may use approved natural pesticides. Residues are usually lower, not zero, and organic says nothing about allergens.', whyAr: 'المزارع العضوية ممكن تستخدم مبيدات طبيعية معتمدة. البقايا عادة أقل مو صفر، وعضوي ما يقول شي عن مسببات الحساسية.' },
+  { en: '“I’ll just pick the nuts off.”', ar: '«بشيل المكسرات وخلاص.»', why: 'Trace amounts can trigger a reaction. Picking off is not removing.', whyAr: 'الأثر البسيط يكفي للتفاعل. الشيل مو إزالة.' },
+  { en: '“Vegan is automatically gluten-free.”', ar: '«النباتي تلقائيًا خالي جلوتين.»', why: 'Seitan is pure wheat gluten. Many mock meats are too.', whyAr: 'السيتان جلوتين قمح صافي. وكثير من بدائل اللحم كذلك.' },
+  { en: '“Jareesh and harees are fine without gluten.”', ar: '«الجريش والهريس ما فيها جلوتين.»', why: 'Jareesh, harees, freekeh and bulgur are all wheat: whole, cracked or green.', whyAr: 'الجريش والهريس والفريكة والبرغل كلها قمح: حب كامل أو مجروش أو أخضر.' },
 ];
 
 const o = (en, ar, extra) => Object.assign({ en, ar }, extra);
 const QS = [
-  { id: 'who', type: 'one', en: 'Which describes you?', ar: 'أي وحدة تنطبق عليك؟', opts: [
-    o('I have coeliac disease (diagnosed)', 'عندي سيلياك (مشخّص)'), o('I have a food allergy', 'عندي حساسية أكل'),
-    o('My child or someone I cook for does', 'ولدي أو أحد أطبخ له عنده'), o('I avoid gluten by choice', 'أتجنب الجلوتين باختياري'),
-    o('None of these', 'ولا وحدة منها', { end: 'none' }) ] },
+  { id: 'who', type: 'one', en: 'Which describes you best?', ar: 'أي وحدة تنطبق عليك أكثر؟', opts: [
+    o('I have diabetes or prediabetes', 'عندي سكري أو مقدمات سكري'), o('I have a food allergy', 'عندي حساسية أكل'),
+    o('I have coeliac disease or a gluten intolerance', 'عندي سيلياك أو حساسية جلوتين'), o('I eat organic when I can', 'آكل عضوي قد ما أقدر'),
+    o('I’m vegan or vegetarian', 'أنا نباتي'), o('I cook for someone with one of these', 'أطبخ لأحد عنده وحدة منها'),
+    o('Another health or lifestyle reason', 'سبب صحي أو أسلوب حياة ثاني'), o('None of these', 'ولا وحدة منها', { end: 'none' }) ] },
   { id: 'age', type: 'one', en: 'Your age group', ar: 'فئتك العمرية', opts: [
     o('Under 18', 'أقل من ١٨', { end: 'minor' }), o('18 to 24', '١٨ إلى ٢٤'), o('25 to 34', '٢٥ إلى ٣٤'), o('35 to 44', '٣٥ إلى ٤٤'), o('45 or older', '٤٥ وفوق') ] },
-  { id: 'avoid', type: 'many', en: 'What do you avoid?', ar: 'وش تتجنب؟', opts: [
-    o('Gluten', 'الجلوتين'), o('Wheat', 'القمح'), o('Milk or lactose', 'الحليب أو اللاكتوز'), o('Nuts', 'المكسرات'), o('Sesame', 'السمسم'),
+  { id: 'avoid', type: 'many', en: 'What do you check for on a label?', ar: 'وش تدور عليه في الملصق؟', opts: [
+    o('Sugar', 'السكر'), o('Carbs', 'الكربوهيدرات'), o('Whether it’s organic', 'إذا كان عضوي'), o('Animal ingredients', 'مكونات حيوانية'), o('Gluten', 'الجلوتين'), o('Wheat', 'القمح'), o('Milk or lactose', 'الحليب أو اللاكتوز'), o('Nuts', 'المكسرات'), o('Sesame', 'السمسم'),
     o('Egg', 'البيض'), o('Soy', 'الصويا'), o('Fish or shellfish', 'السمك أو المأكولات البحرية'), o('Something else', 'شي ثاني') ] },
   { id: 'strict', type: 'one', en: 'How strict do you need to be?', ar: 'قد إيش لازم تكون حريص؟', opts: [
-    o('Even traces make me ill', 'حتى الأثر البسيط يتعبني'), o('I avoid it, but small amounts are OK', 'أتجنبه، بس الكمية البسيطة ما تضر'), o('I am cutting down', 'أقلّل منه') ] },
+    o('Even traces affect me', 'حتى الأثر البسيط يأثر علي'), o('I’m strict, but small amounts are OK', 'ملتزم، بس الكمية البسيطة ما تضر'), o('I’m cutting down, or it’s a preference', 'أقلّل منه، أو هو اختيار') ] },
   { id: 'city', type: 'one', en: 'Which city do you live in?', ar: 'في أي مدينة تعيش؟', opts: [
     o('Riyadh', 'الرياض'), o('Jeddah', 'جدة'), o('Dammam or Khobar', 'الدمام أو الخبر'), o('Makkah', 'مكة'), o('Madinah', 'المدينة'), o('Somewhere else', 'مكان ثاني') ] },
   { id: 'check', type: 'many', en: 'When you shop, how do you check a product is safe for you?', ar: 'لما تتسوق، كيف تتأكد إن المنتج يناسبك؟', opts: [
-    o('I read the label', 'أقرأ الملصق'), o('I look for a gluten-free logo', 'أدور شعار خالي من الجلوتين'), o('I search online', 'أبحث في النت'),
+    o('I read the label', 'أقرأ الملصق'), o('I look for a free-from or organic logo', 'أدور شعار «خالي من» أو «عضوي»'), o('I search online', 'أبحث في النت'),
     o('I ask in a group', 'أسأل في قروب'), o('I stick to brands I know', 'ألتزم بماركات أعرفها'), o('I don’t check', 'ما أتأكد') ] },
   { id: 'slip', type: 'one', en: 'In the last month, did you eat something that turned out not to be safe for you?', ar: 'خلال آخر شهر، أكلت شي وطلع ما يناسبك؟', opts: [
     o('No', 'لا'), o('Once', 'مرة'), o('2 to 3 times', '٢ إلى ٣ مرات'), o('More often', 'أكثر') ] },
@@ -319,7 +320,7 @@ const QS = [
     o('Delivery from safe kitchens', 'توصيل من مطابخ آمنة') ] },
   { id: 'tools', type: 'text', en: 'Which apps or accounts do you use for this today?', ar: 'وش التطبيقات أو الحسابات اللي تستخدمها اليوم لهالشي؟' },
   { id: 'trust', type: 'one', en: 'If a scan said “not in the listed ingredients”, would you trust it?', ar: 'لو المسح قال «مو موجود في المكونات»، تثق فيه؟', opts: [
-    o('Yes', 'أيوه'), o('Only with a gluten-free logo too', 'بس لو فيه شعار خالي من الجلوتين بعد'), o('I would still read the label', 'بقرأ الملصق برضو'), o('No', 'لا') ] },
+    o('Yes', 'أيوه'), o('Only with a certified logo too', 'بس لو فيه شعار معتمد بعد'), o('I would still read the label', 'بقرأ الملصق برضو'), o('No', 'لا') ] },
   { id: 'add', type: 'one', en: 'Would you add a product the app doesn’t know, by taking a photo of its label?', ar: 'تضيف منتج التطبيق ما يعرفه، بصورة لملصقه؟', opts: [
     o('Yes', 'أيوه'), o('Maybe', 'يمكن'), o('No', 'لا') ] },
   { id: 'pay', type: 'one', en: 'Would you pay for an app that does what you ranked first?', ar: 'تدفع لتطبيق يسوي أول شي رتبته؟', opts: [

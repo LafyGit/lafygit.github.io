@@ -3,29 +3,30 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="description" content="Help shape Crumbless, a food app for every diet: diabetes, allergies, coeliac, organic, vegan and more. 4 minutes, anonymous, Arabic or English.">
+<meta name="theme-color" content="#2E6B4E">
+<meta name="description" content="Know what is in it before you eat it, whatever your diet. Tell Crumbless what you need: 4 minutes, no name needed, Arabic or English.">
 <title>Crumbless Survey</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&family=Caveat:wght@600&family=Figtree:wght@400;600;800&family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Readex+Pro:wght@400;500;600;700&display=swap">
 <style>
-/* Layout: one notebook page. Ruled paper, hand-written margin notes, the survey as a stack of index cards. */
+/* Layout: one notebook page. Ruled paper, hand-written margin notes, the survey as a stack of index cards.
+   Colours and type follow Crumbless brand v2 "Market notebook": herb for actions, tomato only for warnings, honey for "ask". */
 :root {
-  --page: #E8DCC8; --paper: #F8EDDF; --paper2: #F1EAD5; --rule: #d9cdb6;
-  --ink: #3f3b38; --muted: #6b625a; --brown: #6B4E3D; --olive: #A39F77; --red: #B24040; --on-red: #F8EDDF;
-  --focus: #2f5d8a; --shadow: 0 1px 0 rgba(72,52,40,.08), 0 10px 28px -14px rgba(72,52,40,.35);
-  --display: 'Aref Ruqaa', 'Figtree', serif; --hand: 'Caveat', 'Kalam', cursive;
-  --body: 'Figtree', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --page: #E6DCC6; --paper: #F4EEE2; --paper2: #FCF8F0; --rule: #E2D8C4; --leaf: #DDEBDD;
+  --ink: #2A2F2B; --muted: #5A625C; --act: #2E6B4E; --on-act: #FFFFFF; --warn: #B23A26; --ask: #E7B550;
+  --focus: #2E6B4E; --shadow: 0 1px 0 rgba(42,47,43,.07), 0 10px 28px -14px rgba(42,47,43,.32);
+  --hand: 'Caveat', cursive;
+  --body: 'Readex Pro', 'IBM Plex Sans Arabic', system-ui, sans-serif;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --page: #1d1a17; --paper: #2a2622; --paper2: #322d28; --rule: #3d372f;
-  --ink: #efe6d8; --muted: #b9ad9e; --brown: #d0a98f; --olive: #bdb88f; --red: #e0716a; --on-red: #1d1a17;
-  --focus: #8fb8e0; --shadow: 0 1px 0 rgba(0,0,0,.3), 0 12px 30px -14px rgba(0,0,0,.7); color-scheme: dark } }
+  --page: #141a17; --paper: #1A211D; --paper2: #252E29; --rule: #34403A; --leaf: #22362B;
+  --ink: #EEF1EA; --muted: #A9B3AB; --act: #8FD0AE; --on-act: #10231A; --warn: #F2917F; --ask: #EBC46E;
+  --focus: #8FD0AE; --shadow: 0 1px 0 rgba(0,0,0,.3), 0 12px 30px -14px rgba(0,0,0,.7); color-scheme: dark } }
 :root[data-theme="dark"] {
-  --page: #1d1a17; --paper: #2a2622; --paper2: #322d28; --rule: #3d372f;
-  --ink: #efe6d8; --muted: #b9ad9e; --brown: #d0a98f; --olive: #bdb88f; --red: #e0716a; --on-red: #1d1a17;
-  --focus: #8fb8e0; --shadow: 0 1px 0 rgba(0,0,0,.3), 0 12px 30px -14px rgba(0,0,0,.7); color-scheme: dark }
-:lang(ar) { --body: 'IBM Plex Sans Arabic', 'Figtree', system-ui, sans-serif; }
+  --page: #141a17; --paper: #1A211D; --paper2: #252E29; --rule: #34403A; --leaf: #22362B;
+  --ink: #EEF1EA; --muted: #A9B3AB; --act: #8FD0AE; --on-act: #10231A; --warn: #F2917F; --ask: #EBC46E;
+  --focus: #8FD0AE; --shadow: 0 1px 0 rgba(0,0,0,.3), 0 12px 30px -14px rgba(0,0,0,.7); color-scheme: dark }
 
 * { box-sizing: border-box; }
 body { background: var(--page); color: var(--ink); font-family: var(--body); font-size: 17px; line-height: 1.6; margin: 0; }
@@ -34,20 +35,20 @@ body { background: var(--page); color: var(--ink); font-family: var(--body); fon
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
   padding-block: 0 72px; min-height: 100%; box-shadow: var(--shadow); }
 .inner { max-width: 720px; margin: 0 auto; display: grid; gap: 56px; }
-a { color: var(--red); }
+a { color: var(--act); }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 6px; }
-h1, h2 { font-family: var(--display); font-weight: 700; text-wrap: balance; margin: 0; line-height: 1.15; }
-:lang(en) h1, :lang(en) h2 { font-family: 'Figtree', sans-serif; font-weight: 800; letter-spacing: -.02em; }
+h1, h2 { font-family: var(--body); font-weight: 700; letter-spacing: -.01em; text-wrap: balance; margin: 0; line-height: 1.15; }
 h1 { font-size: clamp(36px, 7vw, 58px); }
 h2 { font-size: clamp(26px, 4.4vw, 34px); }
-.hand { font-family: var(--hand); font-size: 24px; color: var(--brown); line-height: 1.1; }
-:lang(ar) .hand { font-family: 'Aref Ruqaa', serif; font-size: 20px; }
+.hand { font-family: var(--hand); font-size: 24px; color: var(--act); line-height: 1.1; }
+:lang(ar) .hand { font-family: var(--body); font-weight: 700; font-size: 17px; }
 .muted { color: var(--muted); font-size: 15px; }
 p { margin: 0; max-width: 62ch; }
 
 /* top bar */
 .bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-block: 18px; }
-.brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 20px; color: var(--ink); }
+.brand { display: flex; align-items: center; gap: 8px; font: 600 30px/1 var(--hand); color: var(--act); }
+:lang(ar) .brand { font: 700 20px var(--body); }
 .brand svg { width: 40px; height: 40px; }
 .lang { border: 1.5px solid var(--ink); background: transparent; color: var(--ink); font: 600 15px var(--body); padding: 8px 16px; border-radius: 999px; cursor: pointer; min-height: 44px; }
 .lang:hover { background: var(--paper2); }
@@ -55,16 +56,16 @@ p { margin: 0; max-width: 62ch; }
 /* hero */
 .hero { display: grid; gap: 22px; padding-top: 18px; }
 .hero .mark { width: 120px; height: 120px; }
-.mark path { fill: var(--ink); stroke: var(--ink); stroke-width: 2.1; stroke-linejoin: round; stroke-linecap: round; }
+.mark path { fill: var(--act); stroke: var(--act); stroke-width: 2.1; stroke-linejoin: round; stroke-linecap: round; }
 .draw path { stroke-dasharray: 2600; stroke-dashoffset: 0; animation: draw 2.4s ease-out both, fillin 2.4s ease-out both; }
 @keyframes draw { from { stroke-dashoffset: 2600; } to { stroke-dashoffset: 0; } }
 @keyframes fillin { 0%, 55% { fill-opacity: 0; } 100% { fill-opacity: 1; } }
 .hero .lede { font-size: 19px; }
 .pills { display: flex; flex-wrap: wrap; gap: 8px; }
-.pill { border: 1.5px dashed var(--olive); color: var(--brown); padding: 4px 12px; border-radius: 999px; font-size: 14px; font-weight: 600; background: var(--paper); }
-.cta { display: inline-flex; align-items: center; gap: 10px; background: var(--red); color: var(--on-red); border: 0; font: 700 18px var(--body); padding: 14px 26px; border-radius: 14px; cursor: pointer; min-height: 52px; justify-self: start; box-shadow: 0 3px 0 var(--brown); transition: transform .12s ease, box-shadow .12s ease; text-decoration: none; }
-.cta:hover { transform: translateY(-1px); box-shadow: 0 4px 0 var(--brown); }
-.cta:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--brown); }
+.pill { border: 1.5px dashed var(--act); color: var(--act); padding: 4px 12px; border-radius: 999px; font-size: 14px; font-weight: 600; background: var(--paper); }
+.cta { display: inline-flex; align-items: center; gap: 10px; background: var(--act); color: var(--on-act); border: 0; font: 700 18px var(--body); padding: 14px 26px; border-radius: 14px; cursor: pointer; min-height: 52px; justify-self: start; box-shadow: 0 3px 0 color-mix(in srgb, var(--act) 60%, var(--ink)); transition: transform .12s ease, box-shadow .12s ease; text-decoration: none; }
+.cta:hover { transform: translateY(-1px); box-shadow: 0 4px 0 color-mix(in srgb, var(--act) 60%, var(--ink)); }
+.cta:active { transform: translateY(2px); box-shadow: 0 1px 0 color-mix(in srgb, var(--act) 60%, var(--ink)); }
 .cta .arr { display: inline-block; transition: transform .2s ease; }
 .cta:hover .arr { transform: translateX(4px); }
 :dir(rtl) .cta .arr { transform: scaleX(-1); }
@@ -75,17 +76,28 @@ p { margin: 0; max-width: 62ch; }
 .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
 .fact { background: var(--paper2); border-radius: 4px 14px 6px 12px; padding: 18px 18px 14px; display: grid; gap: 8px; align-content: start; box-shadow: var(--shadow); min-width: 0; transform: rotate(var(--tilt, 0deg)); }
 .fact:nth-child(3n+1) { --tilt: -.6deg; } .fact:nth-child(3n+2) { --tilt: .5deg; } .fact:nth-child(3n) { --tilt: -.25deg; }
-.num { font: 800 44px/1 'Figtree', sans-serif; color: var(--red); font-variant-numeric: tabular-nums; }
+.num { font: 700 44px/1 var(--body); color: var(--act); font-variant-numeric: tabular-nums; }
 .fact p { font-size: 15.5px; }
 .src { font-size: 13px; color: var(--muted); }
 .src a { color: var(--muted); }
-.note { border-inline-start: 3px solid var(--olive); padding-inline-start: 14px; font-size: 15px; color: var(--muted); }
+.note { border-inline-start: 3px solid var(--ask); padding-inline-start: 14px; font-size: 15px; color: var(--muted); }
 .takeaway { font-size: 19px; }
 
 /* hidden gluten */
 .hidden-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0 20px; margin: 0; padding: 0; list-style: none; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 1.5px solid var(--rule); background: var(--paper); color: var(--ink); font: 600 15.5px var(--body); padding: 8px 16px; border-radius: 999px; cursor: pointer; min-height: 44px; transition: background .15s ease, border-color .15s ease, transform .12s ease; }
+.chip:hover { border-color: var(--act); }
+.chip[aria-selected="true"] { background: var(--act); color: var(--on-act); border-color: var(--act); transform: rotate(-1deg); }
+.forpanel { background: var(--paper2); border-radius: 6px 16px 8px 14px; box-shadow: var(--shadow); padding: 20px clamp(18px, 4vw, 28px); }
+.forpanel ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+.forpanel li { display: grid; grid-template-columns: 26px 1fr; gap: 10px; align-items: start; min-width: 0; }
+.forpanel li svg { width: 22px; height: 22px; margin-top: 3px; stroke: var(--act); fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 30; stroke-dashoffset: 0; }
+.forpanel.swap li { animation: rise .35s ease-out both; } .forpanel.swap li:nth-child(2) { animation-delay: .06s; } .forpanel.swap li:nth-child(3) { animation-delay: .12s; }
+.forpanel.swap li svg { animation: drawtick .5s ease-out both; }
+@keyframes drawtick { from { stroke-dashoffset: 30; } to { stroke-dashoffset: 0; } }
 .hidden-list li { padding: 10px 0; border-bottom: 1.5px dashed var(--rule); display: grid; gap: 2px; min-width: 0; }
-.hidden-list b { color: var(--brown); }
+.hidden-list b { color: var(--act); }
 .hidden-list span { font-size: 14.5px; color: var(--muted); }
 
 /* survey */
@@ -94,7 +106,7 @@ p { margin: 0; max-width: 62ch; }
 .track { flex: 1; height: 10px; position: relative; }
 .track svg { width: 100%; height: 10px; display: block; overflow: visible; }
 .track .bg { stroke: var(--rule); }
-.track .fg { stroke: var(--red); transition: stroke-dashoffset .45s ease; }
+.track .fg { stroke: var(--act); transition: stroke-dashoffset .45s ease; }
 .count { font-variant-numeric: tabular-nums; font-size: 14px; color: var(--muted); min-width: 4.5em; text-align: end; }
 .card { background: var(--paper2); border-radius: 6px 16px 8px 14px; box-shadow: var(--shadow); padding: 24px clamp(18px, 4vw, 32px); display: grid; gap: 16px; min-height: 320px; align-content: start; }
 .card.in { animation: cardin .3s ease both; }
@@ -106,27 +118,27 @@ p { margin: 0; max-width: 62ch; }
 .hint { font-size: 14px; color: var(--muted); margin-top: -8px; }
 .opts { display: grid; gap: 8px; }
 .opt { display: flex; align-items: center; gap: 12px; text-align: start; width: 100%; background: var(--paper); color: var(--ink); border: 1.5px solid var(--rule); border-radius: 12px; padding: 11px 14px; font: 500 16.5px var(--body); cursor: pointer; min-height: 48px; transition: border-color .12s ease, background .12s ease, transform .12s ease; }
-.opt:hover { border-color: var(--olive); }
+.opt:hover { border-color: var(--act); }
 .opt:active { transform: scale(.99); }
-.opt .box { flex: none; width: 24px; height: 24px; border: 1.8px solid var(--brown); border-radius: 50%; display: grid; place-items: center; font: 700 13px 'Figtree', sans-serif; color: var(--on-red); }
+.opt .box { flex: none; width: 24px; height: 24px; border: 1.8px solid var(--act); border-radius: 50%; display: grid; place-items: center; font: 700 13px var(--body); color: var(--on-act); }
 .opt.multi .box { border-radius: 6px; }
-.opt[aria-pressed="true"], .opt[aria-checked="true"] { border-color: var(--red); background: color-mix(in srgb, var(--red) 9%, var(--paper)); }
-.opt[aria-pressed="true"] .box, .opt[aria-checked="true"] .box { background: var(--red); border-color: var(--red); }
-.opt .box svg { width: 14px; height: 14px; stroke: var(--on-red); fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 24; stroke-dashoffset: 24; }
+.opt[aria-pressed="true"], .opt[aria-checked="true"] { border-color: var(--act); background: var(--leaf); }
+.opt[aria-pressed="true"] .box, .opt[aria-checked="true"] .box { background: var(--act); border-color: var(--act); }
+.opt .box svg { width: 14px; height: 14px; stroke: var(--on-act); fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 24; stroke-dashoffset: 24; }
 .opt[aria-pressed="true"] .box svg, .opt[aria-checked="true"] .box svg { animation: tick .25s ease-out forwards; }
 @keyframes tick { to { stroke-dashoffset: 0; } }
 textarea, input[type=email] { width: 100%; font: 16.5px var(--body); color: var(--ink); background: var(--paper); border: 1.5px solid var(--rule); border-radius: 12px; padding: 12px 14px; }
 textarea { min-height: 120px; resize: vertical; }
-textarea:focus, input[type=email]:focus { border-color: var(--olive); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--olive) 35%, transparent); }
+textarea:focus, input[type=email]:focus { border-color: var(--act); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--act) 35%, transparent); }
 .consent { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; cursor: pointer; }
-.consent input { width: 22px; height: 22px; margin-top: 2px; accent-color: var(--red); flex: none; }
+.consent input { width: 22px; height: 22px; margin-top: 2px; accent-color: var(--act); flex: none; }
 .nav { display: flex; justify-content: space-between; gap: 12px; align-items: center; }
 .ghost { background: transparent; border: 0; color: var(--muted); font: 600 16px var(--body); padding: 10px 6px; cursor: pointer; min-height: 44px; }
 .ghost:hover { color: var(--ink); }
 .ghost[disabled] { visibility: hidden; }
 .next[disabled] { opacity: .45; cursor: not-allowed; transform: none; }
-.err { color: var(--red); font-size: 14.5px; }
-.banner { background: color-mix(in srgb, var(--olive) 22%, var(--paper)); border-radius: 10px; padding: 10px 14px; font-size: 14.5px; }
+.err { color: var(--warn); font-size: 14.5px; }
+.banner { background: color-mix(in srgb, var(--ask) 28%, var(--paper2)); border-radius: 10px; padding: 10px 14px; font-size: 14.5px; }
 .done { text-align: center; justify-items: center; align-content: center; }
 .done .mark { width: 96px; height: 96px; }
 .privacy { display: grid; gap: 10px; }
@@ -156,6 +168,14 @@ textarea:focus, input[type=email]:focus { border-color: var(--olive); outline: n
     <a class="cta" href="#survey" id="start"><span data-t="start"></span><span class="arr" aria-hidden="true">→</span></a>
   </section>
 
+  <section class="section" aria-labelledby="forh">
+    <div class="hand" data-t="forKick"></div>
+    <h2 id="forh" data-t="forH"></h2>
+    <div class="chips" id="chips" role="tablist"></div>
+    <div class="forpanel" id="forpanel" role="tabpanel"></div>
+    <p class="muted" data-t="forNote"></p>
+  </section>
+
   <section class="section" aria-labelledby="whyh">
     <div class="hand" data-t="whyKick"></div>
     <h2 id="whyh" data-t="whyH"></h2>
@@ -176,7 +196,7 @@ textarea:focus, input[type=email]:focus { border-color: var(--olive); outline: n
     <h2 id="survh" data-t="survH"></h2>
     <div class="banner" id="previewBanner" hidden data-t="preview"></div>
     <div class="progress" aria-hidden="true">
-      <div class="track"><svg viewBox="0 0 100 10" preserveAspectRatio="none"><path class="bg" d="M1 5 C 20 3, 40 7, 60 5 S 90 4, 99 5" fill="none" stroke-width="2.4" stroke-linecap="round" vector-effect="non-scaling-stroke"/><path class="fg" id="pen" d="M1 5 C 20 3, 40 7, 60 5 S 90 4, 99 5" fill="none" stroke-width="3.2" stroke-linecap="round" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100" vector-effect="non-scaling-stroke"/></svg></div>
+      <div class="track"><svg viewBox="0 0 100 10" preserveAspectRatio="none"><path class="bg" d="M1 5 C 20 3, 40 7, 60 5 S 90 4, 99 5" fill="none" stroke-width="2.4" stroke-linecap="round"/><path class="fg" id="pen" d="M1 5 C 20 3, 40 7, 60 5 S 90 4, 99 5" fill="none" stroke-width="3.2" stroke-linecap="round" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100"/></svg></div>
       <span class="count" id="count"></span>
     </div>
     <form class="card" id="card" novalidate aria-live="polite"></form>
@@ -201,29 +221,31 @@ const FORM = { action: '', entries: {} };
 
 const T = {
   en: {
-    brand: 'Crumbless', langBtn: 'العربية', kicker: 'A 4-minute favour',
-    h1: 'Help us build a food app that fits every diet',
-    lede: 'Crumbless is a free app, still being built, for anyone who reads labels for a reason: diabetes, food allergies, coeliac disease, organic eating, vegan or vegetarian diets, and more. Before we build more, we want to hear from you: what is hard, what you use today, and what would help.',
-    p1: '4 minutes', p2: 'Anonymous', p3: 'Arabic or English', start: 'Start the survey',
-    whyKick: 'Why we are asking', whyH: 'Far more people read labels for a reason than you might think',
+    brand: 'Crumbless', langBtn: 'العربية', kicker: 'For you, if you read every label',
+    h1: 'Know what’s in it before you eat it, whatever your diet',
+    lede: 'Managing diabetes, a food allergy or coeliac disease, eating organic, or going vegan: if you turn packs over in the supermarket, Crumbless is being built for you. Tell us what makes it hard, and we’ll build around your answers.',
+    p1: '4 minutes', p2: 'No name needed', p3: 'Early access if you want it', start: 'Tell us what you need',
+    whyKick: 'You’re in good company', whyH: 'You’re not the only one reading the label',
     selfNote: 'The Saudi allergy and organic figures come from surveys of what people reported, not tests, so treat them as a sense of scale, not exact counts.',
-    takeaway: 'Diabetes, allergies, coeliac disease and organic eating each send people to the label, often for the same packs. Your answers decide which of these Crumbless serves first.',
-    hidKick: 'From the app’s Learn notes', hidH: 'Label myths we hear all the time',
+    takeaway: 'If reading labels is part of your day, your answers shape what Crumbless does first.',
+    hidKick: 'Sound familiar?', hidH: 'Label myths you’ve probably heard',
     hidNote: 'Packs change. Crumbless is not medical advice, so read the label every time and speak with your clinician.',
-    survKick: 'The survey', survH: 'Sixteen quick questions',
+    survKick: 'Your turn', survH: 'Sixteen quick questions about how you eat',
     preview: 'Preview: this copy of the survey is not connected yet, so your answers are not sent anywhere.',
     of: (a, b) => a + ' of ' + b, back: 'Back', next: 'Next', send: 'Send my answers', skip: 'Skip',
     many: 'Pick all that apply.', rankHint: 'Tap them in order, most useful first. Tap again to undo.', optional: 'Optional.',
     required: 'Pick an answer to continue.', rankNeed: n => 'Rank at least the top ' + n + '.',
-    emailQ: 'Want early access to the app and news when it launches?', emailHint: 'Optional. Leave it empty to stay fully anonymous.',
+    emailQ: 'Want to be among the first to try Crumbless?', emailHint: 'Leave your email and we’ll invite you to the test version. Optional: leave it empty to stay anonymous.',
     emailPh: 'you@example.com', consent: 'I agree to be emailed about Crumbless. My email is kept with my answers and deleted when I ask.',
     emailBad: 'That email looks incomplete.', consentNeed: 'Tick the box to send your email, or clear the email to stay anonymous.',
     sending: 'Sending…', sendFail: 'Your answers could not be sent. Check your connection and tap Send again.',
-    doneH: 'Thank you', doneP: 'Your answers will help decide what Crumbless builds first.', donePreview: 'This was a preview, so nothing was sent.',
+    doneH: 'Thank you', doneP: 'Your answers go straight into what Crumbless builds first.', donePreview: 'This was a preview, so nothing was sent.',
     noneH: 'Thanks for stopping by', noneP: 'This survey is for people who choose food for a health, allergy or lifestyle reason, or cook for someone who does. If you know someone like that, please send them the link.',
     minorH: 'Thanks for your interest', minorP: 'This survey asks about health, so it is for adults only. Ask a parent to fill it in for your family.',
     again: 'Start over',
-    privH: 'What happens to your answers',
+    privH: 'Your answers stay yours',
+    forKick: 'What it does for you', forH: 'Pick what you live with', forNote: 'In testing now. Your answers decide what comes first.', forPick: 'Choose your need',
+    doneFor: 'You told us you’re here for: ',
     pv1: 'No name or phone number is asked. The email question is optional and needs its own tick.',
     pv2: 'Answers are used only to decide what to build, and are summarised before anything is shared.',
     pv3: 'Nothing is saved in this browser. Closing the page throws your answers away.',
@@ -231,29 +253,31 @@ const T = {
     contact: 'Questions or deletion requests:', appPrivacy: 'The app’s privacy policy',
   },
   ar: {
-    brand: 'كرمبلس', langBtn: 'English', kicker: 'خدمة تاخذ ٤ دقايق',
-    h1: 'ساعدنا نبني تطبيق أكل يناسب كل نظام غذائي',
-    lede: 'كرمبلس تطبيق مجاني لسا نبنيه، لكل واحد يقرا الملصق لسبب: السكري، حساسية الأكل، السيلياك، الأكل العضوي، النباتي، وغيرها. قبل ما نبني أكثر نبي نسمع منك: وش الصعب، وش تستخدم اليوم، ووش اللي يفيدك.',
-    p1: '٤ دقايق', p2: 'بدون اسم', p3: 'عربي أو إنجليزي', start: 'ابدأ الاستبيان',
-    whyKick: 'ليش نسأل', whyH: 'اللي يقرون الملصق لسبب أكثر بكثير مما تتوقع',
+    brand: 'كرمبلس', langBtn: 'English', kicker: 'لك، إذا كنت تقرا كل ملصق',
+    h1: 'اعرف وش فيه قبل ما تأكله، مهما كان نظامك',
+    lede: 'عندك سكري أو حساسية أكل أو سيلياك، أو تاكل عضوي، أو نباتي: إذا كنت تقلب العبوات في السوبرماركت، كرمبلس ينبنى عشانك. قول لنا وش الصعب عليك، ونبنيه على إجاباتك.',
+    p1: '٤ دقايق', p2: 'بدون اسم', p3: 'تجربة مبكرة لو تبي', start: 'قول لنا وش تحتاج',
+    whyKick: 'مو لحالك', whyH: 'مو أنت بس اللي تقرا الملصق',
     selfNote: 'أرقام الحساسية والأكل العضوي في السعودية من استبيانات قال فيها الناس عن نفسهم، مو من فحوصات، فخذها كمؤشر للحجم مو كعدد دقيق.',
-    takeaway: 'السكري والحساسية والسيلياك والأكل العضوي كلها توديك للملصق، وغالبًا لنفس العبوات. إجاباتك تحدد مين يخدم كرمبلس أول.',
-    hidKick: 'من ملاحظات «تعلّم» في التطبيق', hidH: 'خرافات عن الملصقات نسمعها كثير',
+    takeaway: 'إذا قراءة الملصقات جزء من يومك، إجاباتك تحدد وش يسوي كرمبلس أول.',
+    hidKick: 'سمعتها قبل؟', hidH: 'خرافات عن الملصقات أكيد سمعتها',
     hidNote: 'العبوات تتغير. كرمبلس مو نصيحة طبية، فاقرأ الملصق كل مرة واستشر طبيبك.',
-    survKick: 'الاستبيان', survH: 'ستة عشر سؤال سريع',
+    survKick: 'دورك', survH: 'ستة عشر سؤال سريع عن أكلك',
     preview: 'معاينة: هالنسخة من الاستبيان لسا مو مربوطة، فإجاباتك ما تنرسل لأي مكان.',
     of: (a, b) => a + ' من ' + b, back: 'رجوع', next: 'التالي', send: 'أرسل إجاباتي', skip: 'تخطَّ',
     many: 'اختر كل اللي ينطبق.', rankHint: 'اضغطها بالترتيب، الأهم أول. اضغط مرة ثانية عشان تلغي.', optional: 'اختياري.',
     required: 'اختر إجابة عشان تكمل.', rankNeed: n => 'رتّب أهم ' + toAr(n) + ' على الأقل.',
-    emailQ: 'تبي تجرب التطبيق قبل الكل وتوصلك أخباره؟', emailHint: 'اختياري. خلّه فاضي لو تبي تبقى بدون اسم تمامًا.',
+    emailQ: 'تبي تكون من أول اللي يجربون كرمبلس؟', emailHint: 'اترك إيميلك ونرسل لك دعوة للنسخة التجريبية. اختياري: خلّه فاضي وتبقى بدون اسم.',
     emailPh: 'you@example.com', consent: 'أوافق يوصلني إيميل عن كرمبلس. إيميلي ينحفظ مع إجاباتي وينمسح لما أطلب.',
     emailBad: 'الإيميل شكله ناقص.', consentNeed: 'علّم على المربع عشان ترسل إيميلك، أو امسح الإيميل وتبقى بدون اسم.',
     sending: 'جاري الإرسال…', sendFail: 'ما قدرنا نرسل إجاباتك. تأكد من الاتصال واضغط أرسل مرة ثانية.',
-    doneH: 'شكرًا لك', doneP: 'إجاباتك بتساعدنا نقرر وش يبني كرمبلس أول.', donePreview: 'هذي كانت معاينة، فما انرسل شي.',
+    doneH: 'شكرًا لك', doneP: 'إجاباتك تروح مباشرة لأول شي يبنيه كرمبلس.', donePreview: 'هذي كانت معاينة، فما انرسل شي.',
     noneH: 'شكرًا إنك مريت', noneP: 'الاستبيان للي يختارون أكلهم لسبب صحي أو حساسية أو أسلوب حياة، أو يطبخون لأحد كذا. لو تعرف أحد، أرسل له الرابط.',
     minorH: 'شكرًا على اهتمامك', minorP: 'الاستبيان يسأل عن الصحة، فهو للكبار بس. خلّ أحد والديك يعبيه عن عيلتكم.',
     again: 'ابدأ من جديد',
-    privH: 'وش يصير بإجاباتك',
+    privH: 'إجاباتك تبقى لك',
+    forKick: 'وش يسوي لك', forH: 'اختر اللي تعيشه', forNote: 'نجربه الحين. إجاباتك تحدد وش يجي أول.', forPick: 'اختر احتياجك',
+    doneFor: 'قلت لنا إنك هنا عشان: ',
     pv1: 'ما نسأل عن اسم ولا رقم جوال. سؤال الإيميل اختياري ويحتاج موافقة لحاله.',
     pv2: 'الإجابات بس عشان نقرر وش نبني، وتنلخّص قبل ما ينشارك أي شي.',
     pv3: 'ما ينحفظ شي في المتصفح. لو قفلت الصفحة تروح إجاباتك.',
@@ -285,6 +309,34 @@ const HIDDEN = [
   { en: '“Vegan is automatically gluten-free.”', ar: '«النباتي تلقائيًا خالي جلوتين.»', why: 'Seitan is pure wheat gluten. Many mock meats are too.', whyAr: 'السيتان جلوتين قمح صافي. وكثير من بدائل اللحم كذلك.' },
   { en: '“Jareesh and harees are fine without gluten.”', ar: '«الجريش والهريس ما فيها جلوتين.»', why: 'Jareesh, harees, freekeh and bulgur are all wheat: whole, cracked or green.', whyAr: 'الجريش والهريس والفريكة والبرغل كلها قمح: حب كامل أو مجروش أو أخضر.' },
 ];
+
+const FOR = [
+  { k: 'diab', en: 'Diabetes', ar: 'السكري', pts: [
+    ['Scan a pack and see its sugar and carbs per 100 g, rated low, medium or high.', 'امسح العبوة وشف السكر والكربوهيدرات لكل ١٠٠ غرام، قليل أو متوسط أو عالي.'],
+    ['Recipes marked diabetic-friendly, each checked against your other needs too.', 'وصفات مناسبة للسكري، وكل وحدة متشيّكة على احتياجاتك الثانية بعد.'],
+    ['Plain notes on myths like “sugar-free means carb-free”.', 'ملاحظات واضحة عن خرافات مثل «خالي من السكر يعني بدون كارب».'] ] },
+  { k: 'allergy', en: 'Food allergy', ar: 'حساسية أكل', pts: [
+    ['Scan a pack and see whether it lists your allergen or may contain traces of it.', 'امسح العبوة وشف إذا فيها اللي تتحسس منه أو ممكن فيها أثر منه.'],
+    ['Nuts and peanuts, egg, milk, sesame, soy, fish and shellfish.', 'المكسرات والفول السوداني، البيض، الحليب، السمسم، الصويا، السمك والمأكولات البحرية.'],
+    ['Notes on traps like “lactose-free is safe for a milk allergy”.', 'ملاحظات عن فخاخ مثل «الخالي من اللاكتوز آمن لحساسية الحليب».'] ] },
+  { k: 'celiac', en: 'Coeliac or gluten', ar: 'سيلياك أو جلوتين', pts: [
+    ['Scan a pack and see gluten, wheat and “may contain” warnings.', 'امسح العبوة وشف الجلوتين والقمح وتحذيرات «قد يحتوي».'],
+    ['Learn where gluten hides in local food: jareesh, harees, soy sauce, stock cubes.', 'اعرف وين يتخبّى الجلوتين في أكلنا: الجريش، الهريس، صوص الصويا، مكعبات المرقة.'],
+    ['Recipes from the Gulf, the Levant and beyond that fit.', 'وصفات من الخليج والشام وغيرها تناسبك.'] ] },
+  { k: 'organic', en: 'Organic', ar: 'عضوي', pts: [
+    ['Scan a pack and see whether it carries an organic label.', 'امسح العبوة وشف إذا عليها شعار عضوي.'],
+    ['A weekly meal plan with an organic switch for your shopping list.', 'خطة أكل أسبوعية فيها خيار عضوي لقائمة مشترياتك.'],
+    ['Honest notes on what organic does and doesn’t mean.', 'ملاحظات صريحة عن وش يعني عضوي ووش ما يعني.'] ] },
+  { k: 'vegan', en: 'Vegan or vegetarian', ar: 'نباتي', pts: [
+    ['Scan a pack and see whether it’s vegan, not vegan, or maybe.', 'امسح العبوة وشف إذا هي نباتية أو لا أو يمكن.'],
+    ['Recipes that fit, checked ingredient by ingredient.', 'وصفات تناسبك، متشيّكة مكوّن مكوّن.'],
+    ['Notes on traps like seitan, which is pure wheat gluten.', 'ملاحظات عن فخاخ مثل السيتان، اللي هو جلوتين قمح صافي.'] ] },
+  { k: 'family', en: 'Cooking for family', ar: 'أطبخ لعيلتي', pts: [
+    ['Pick every need in your home, and each scan checks them all at once.', 'اختر كل احتياجات بيتك، وكل مسحة تشيّك عليها كلها مرة وحدة.'],
+    ['A week of meals that fits everyone, with one shopping list.', 'أسبوع أكل يناسب الكل، بقائمة مشتريات وحدة.'],
+    ['Arabic and English, so everyone at home can use it.', 'عربي وإنجليزي، عشان كل اللي في البيت يستخدمونه.'] ] },
+];
+let forSel = 0;
 
 const o = (en, ar, extra) => Object.assign({ en, ar }, extra);
 const QS = [
@@ -334,6 +386,7 @@ const COUNTED = QS.length - 1;
 let lang = (navigator.language || '').toLowerCase().startsWith('en') ? 'en' : 'ar';
 try { const s = localStorage.getItem('cb-survey-lang'); if (s === 'en' || s === 'ar') lang = s; } catch (e) {}
 const ans = {};      // in memory only: health answers are never written to storage
+let lastWho = null;
 let step = 0, ending = null, dir = 1, sending = false, errMsg = '';
 const toAr = n => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]).replace('.', '٫');
 const fmt = n => lang === 'ar' ? toAr(n) : String(n);
@@ -352,8 +405,23 @@ function applyLang() {
   $('#previewBanner').hidden = !preview;
   $('#facts').innerHTML = FACTS.map((f, i) => `<article class="fact reveal"><div class="num" data-n="${f.n}" data-d="${f.d}">${fmt(f.n.toFixed(f.d))}${lang === 'ar' ? '٪' : '%'}</div><p>${esc(f[lang])}</p><div class="src"><a href="${f.url}" target="_blank" rel="noopener">${esc(lang === 'ar' ? f.srcAr : f.src)}</a></div></article>`).join('');
   $('#hidden').innerHTML = HIDDEN.map(h => `<li><b>${esc(h[lang])}</b><span>${esc(lang === 'ar' ? h.whyAr : h.why)}</span></li>`).join('');
+  renderFor(false);
   countUp();
   render(false);
+}
+
+function renderFor(anim) {
+  $('#chips').innerHTML = FOR.map((f, i) => `<button type="button" class="chip" role="tab" id="chip${i}" aria-selected="${i === forSel}" aria-controls="forpanel" tabindex="${i === forSel ? 0 : -1}" data-i="${i}">${esc(f[lang])}</button>`).join('');
+  const f = FOR[forSel], panel = $('#forpanel');
+  panel.setAttribute('aria-labelledby', 'chip' + forSel);
+  panel.innerHTML = `<ul>${f.pts.map(p => `<li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12.5l5 5L20 6"/></svg><span>${esc(lang === 'ar' ? p[1] : p[0])}</span></li>`).join('')}</ul>`;
+  panel.classList.remove('swap'); if (anim) { void panel.offsetWidth; panel.classList.add('swap'); }
+  document.querySelectorAll('.chip').forEach(b => {
+    b.onclick = () => { forSel = +b.dataset.i; renderFor(true); $('#chip' + forSel).focus(); };
+    b.onkeydown = e => { const k = e.key, rtl = lang === 'ar';
+      const d = k === 'ArrowRight' ? (rtl ? -1 : 1) : k === 'ArrowLeft' ? (rtl ? 1 : -1) : 0;
+      if (d) { e.preventDefault(); forSel = (forSel + d + FOR.length) % FOR.length; renderFor(true); $('#chip' + forSel).focus(); } };
+  });
 }
 
 function countUp() {
@@ -380,11 +448,12 @@ function render(animate = true) {
   card.classList.remove('in', 'back', 'done');
   if (ending) {
     const k = ending;
+    const whoLabel = lastWho != null ? QS[0].opts[lastWho][lang] : '';
     card.classList.add('done');
     card.innerHTML = `<svg class="mark draw" viewBox="0 0 200 200" aria-hidden="true"><path fill-rule="evenodd" d="${MARKPATH}"/></svg>
-      <div class="q">${esc(t(k + 'H'))}</div><p>${esc(t(k + 'P'))}</p>${k === 'done' && preview ? `<p class="muted">${esc(t('donePreview'))}</p>` : ''}
+      <div class="q">${esc(t(k + 'H'))}</div><p>${esc(t(k + 'P'))}</p>${k === 'done' && whoLabel ? `<p class="hand">${esc(t('doneFor') + whoLabel)}</p>` : ''}${k === 'done' && preview ? `<p class="muted">${esc(t('donePreview'))}</p>` : ''}
       <button type="button" class="ghost" id="again">${esc(t('again'))}</button>`;
-    $('#again').onclick = () => { for (const key in ans) delete ans[key]; step = 0; ending = null; dir = -1; render(); };
+    $('#again').onclick = () => { lastWho = null; for (const key in ans) delete ans[key]; step = 0; ending = null; dir = -1; render(); };
   } else {
     const q = QS[step];
     let body = '';
@@ -463,14 +532,14 @@ function payload() {
 }
 
 async function submit() {
-  if (preview) { ending = 'done'; dir = 1; render(); return; }
+  if (preview) { lastWho = ans.who; ending = 'done'; dir = 1; render(); return; }
   sending = true; render(false);
   try {
     const body = new URLSearchParams();
     const p = payload();
     for (const k in p) if (FORM.entries[k] && p[k] !== '') body.append(FORM.entries[k], p[k]);
     await fetch(FORM.action, { method: 'POST', mode: 'no-cors', body });
-    sending = false; for (const key in ans) delete ans[key]; ending = 'done'; dir = 1; render();
+    sending = false; lastWho = ans.who; for (const key in ans) delete ans[key]; ending = 'done'; dir = 1; render();
   } catch (e) { sending = false; errMsg = t('sendFail'); render(false); }
 }
 

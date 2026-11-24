@@ -140,3 +140,17 @@ test('the globe projection matches the view: its centre looks at 12N 62E', () =>
   assert.ok(riyadh.facing);
   assert.ok(!projectEarth(-120, 40, 400, 300, 100).facing, 'California is on the far side');
 });
+
+test('"More games from Lafy" links every shipped app to its own App Store page', () => {
+  const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
+  const block = html.slice(html.indexOf('id="games"'), html.indexOf('class="water-h"'));
+  for (const id of ['6811613917', '6816925758', '6818628873', '6800394429', '6778617964', '6768479737']) {
+    assert.ok(block.includes(`https://apps.apple.com/sa/app/id${id}`), id);
+  }
+});
+
+test('app-ads.txt is one well-formed AdMob line', () => {
+  const lines = readFileSync(new URL('../app-ads.txt', import.meta.url), 'utf8').split('\n').filter((l) => l.trim());
+  assert.equal(lines.length, 1);
+  assert.match(lines[0], /^google\.com, pub-\d{16}, DIRECT, f08c47fec0942fa0$/);
+});
